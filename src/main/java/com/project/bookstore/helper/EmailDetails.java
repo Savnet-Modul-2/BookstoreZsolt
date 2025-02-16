@@ -1,6 +1,8 @@
 package com.project.bookstore.helper;
 
 public class EmailDetails {
+    public static final String CODE_EMAIL_SUBJECT="Your code for the Bookstore App";
+
     private String recipient;
     private String msgBody;
     private String subject;

@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
+    
 
-    public void sendSimpleMail(EmailDetails details) {
+    public void sendVerificationCodeMail(EmailDetails details) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(details.getRecipient());
         mailMessage.setText(details.getMsgBody());

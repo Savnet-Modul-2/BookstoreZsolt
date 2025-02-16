@@ -2,6 +2,8 @@ package com.project.bookstore.dto;
 
 import com.project.bookstore.entity.Gender;
 
+import java.time.LocalDateTime;
+
 public class UserDto {
     private Long id;
     private String firstName;
@@ -13,6 +15,8 @@ public class UserDto {
     private Gender gender;
     private int yearOfBirth;
     private boolean verifiedAccount;
+    private String verificationCode;
+    private LocalDateTime verificationCodeTime;
 
     public Long getId() {
         return id;
@@ -92,5 +96,21 @@ public class UserDto {
 
     public void setVerifiedAccount(boolean verifiedAccount) {
         this.verifiedAccount = verifiedAccount;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public LocalDateTime getVerificationCodeTime() {
+        return verificationCodeTime;
+    }
+
+    public void setVerificationCodeTime(LocalDateTime verificationCodeTime) {
+        this.verificationCodeTime = verificationCodeTime;
     }
 }

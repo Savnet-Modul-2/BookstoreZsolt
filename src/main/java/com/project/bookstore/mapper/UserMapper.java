@@ -23,6 +23,8 @@ public class UserMapper {
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setCountry(userDto.getCountry());
         user.setVerifiedAccount(userDto.isVerifiedAccount());
+        user.setVerificationCode(userDto.getVerificationCode());
+        user.setVerificationCodeTime(userDto.getVerificationCodeTime());
         return user;
     }
 
@@ -37,7 +39,9 @@ public class UserMapper {
         userDto.setPhoneNumber(user.getPhoneNumber());
         userDto.setPassword(user.getPassword());
         userDto.setCountry(user.getCountry());
-        userDto.setVerifiedAccount(userDto.isVerifiedAccount());
+        userDto.setVerifiedAccount(user.isVerifiedAccount());
+        userDto.setVerificationCode(user.getVerificationCode());
+        userDto.setVerificationCodeTime(user.getVerificationCodeTime());
         return userDto;
     }
 

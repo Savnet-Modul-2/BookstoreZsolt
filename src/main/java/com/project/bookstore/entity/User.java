@@ -3,6 +3,8 @@ package com.project.bookstore.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity(name = "user")
 @Table(name = "user", schema = "public")
 public class User {
@@ -28,7 +30,10 @@ public class User {
     private int yearOfBirth;
     @Column(name = "verifiedAccount")
     private boolean verifiedAccount;
-
+    @Column(name = "verificationCode")
+    private String verificationCode;
+    @Column(name="verificationCodeTime")
+    private LocalDateTime verificationCodeTime;
 
     public Long getId() {
         return id;
@@ -108,5 +113,21 @@ public class User {
 
     public void setVerifiedAccount(boolean verifiedAccount) {
         this.verifiedAccount = verifiedAccount;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public LocalDateTime getVerificationCodeTime() {
+        return verificationCodeTime;
+    }
+
+    public void setVerificationCodeTime(LocalDateTime verificationCodeTime) {
+        this.verificationCodeTime = verificationCodeTime;
     }
 }
