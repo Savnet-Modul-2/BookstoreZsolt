@@ -3,8 +3,10 @@ package com.project.bookstore.controller;
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.UserValidationException;
+import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.helper.UserValidator;
 import com.project.bookstore.mapper.UserMapper;
+import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -30,6 +32,8 @@ public class UserController {
     private UserMapper userMapper;
     @Autowired
     private UserValidator userValidator;
+    @Autowired
+    private EmailService emailService;
 
     @InitBinder
     protected void initBinder(WebDataBinder webDataBinder) {
@@ -46,6 +50,7 @@ public class UserController {
             throw new UserValidationException(errorMap);
         }
         User createdUser = userService.createUser(userMapper.mapUserDtoToUser(userDto));
+        emailService.sendSimpleMail(new EmailDetails(createdUser.getEmail(), "Hello", "Salut"));
         return ResponseEntity.ok(userMapper.mapUserToUserDto(createdUser));
     }
 

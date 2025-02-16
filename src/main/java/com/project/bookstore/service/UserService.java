@@ -2,6 +2,7 @@ package com.project.bookstore.service;
 
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
+import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
@@ -18,6 +19,7 @@ public class UserService {
     private UserRepository userRepository;
     @PersistenceContext
     private EntityManager entityManager;
+
 
     public User createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -36,6 +38,5 @@ public class UserService {
 
     public void deleteUserById(Long userId) {
         userRepository.deleteById(userId);
-
     }
 }
