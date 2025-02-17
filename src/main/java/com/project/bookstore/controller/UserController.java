@@ -3,6 +3,8 @@ package com.project.bookstore.controller;
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
+import com.project.bookstore.exceptions.UserAccountNotVerifiedException;
+import com.project.bookstore.exceptions.UserBadCredentialsException;
 import com.project.bookstore.exceptions.UserValidationException;
 import com.project.bookstore.helper.UserValidator;
 import com.project.bookstore.mapper.UserMapper;
@@ -71,8 +73,15 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id, @RequestBody Map<String, String> codeMap) throws CodeExpirationTimeException {
+    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id, @RequestBody Map<String, String> codeMap) {
         User verifiedUser = userService.verifyUserCode(id, codeMap.get("verifiableCode"));
         return ResponseEntity.ok(userMapper.mapUserToUserDto(verifiedUser));
     }
+
+    @PutMapping("/login")
+    public ResponseEntity<?> loginIntoAccount(@RequestBody Map<String, String> loginCredentials) throws NoSuchAlgorithmException {
+        Long id = userService.getUserIdAfterLogin(loginCredentials.get("email"), loginCredentials.get("password"));
+        return ResponseEntity.ok(id);
+    }
+
 }

@@ -38,4 +38,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserBadCredentialsException.class)
+    public ResponseEntity<?> handleUserBadCredentialsException(UserBadCredentialsException userBadCredentialsException) {
+        ErrorDetail errorDetail = new ErrorDetail(userBadCredentialsException.getMessage());
+        return new ResponseEntity<>(errorDetail, CONFLICT);
+    }
+
+    @ExceptionHandler(UserAccountNotVerifiedException.class)
+    public ResponseEntity<?> handleUserAccountNotVerifiedException(UserAccountNotVerifiedException userAccountNotVerifiedException) {
+        ErrorDetail errorDetail = new ErrorDetail(userAccountNotVerifiedException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
 }

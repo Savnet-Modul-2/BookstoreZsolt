@@ -1,6 +1,6 @@
 package com.project.bookstore.exceptions;
 
-public class CodeExpirationTimeException extends Exception{
+public class CodeExpirationTimeException extends RuntimeException{
     public CodeExpirationTimeException(String message) {
         super(message);
     }

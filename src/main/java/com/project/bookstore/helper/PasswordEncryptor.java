@@ -5,10 +5,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class PasswordEncryptor {
+    private PasswordEncryptor() {
+    }
+
     public static String encryptUserPasswordWithSHA256(String userPassword) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest=MessageDigest.getInstance("SHA-256");
-        byte[] encodedHash=messageDigest.digest(userPassword.getBytes(StandardCharsets.UTF_8));
-        StringBuilder hexString=new StringBuilder(2*encodedHash.length);
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedHash = messageDigest.digest(userPassword.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder(2 * encodedHash.length);
         for (byte hash : encodedHash) {
             String hex = Integer.toHexString(0xff & hash);
             if (encodedHash.length == 1) {
