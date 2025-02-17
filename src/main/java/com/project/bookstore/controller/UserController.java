@@ -73,6 +73,6 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id, @RequestBody Map<String, String> codeMap) throws CodeExpirationTimeException {
         User verifiedUser = userService.verifyUserCode(id, codeMap.get("verifiableCode"));
-        return ResponseEntity.ok(verifiedUser);
+        return ResponseEntity.ok(userMapper.mapUserToUserDto(verifiedUser));
     }
 }

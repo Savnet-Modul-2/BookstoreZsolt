@@ -45,8 +45,8 @@ public class UserMapper {
         return userDto;
     }
 
-    @SneakyThrows
-    public List<User> mapUserDtoListToUserList(List<UserDto> userDtoList) {
+
+    public List<User> mapUserDtoListToUserList(List<UserDto> userDtoList) throws NoSuchAlgorithmException {
         List<User>userList=new ArrayList<>();
         for(UserDto userDto:userDtoList){
             userList.add(mapUserDtoToUser(userDto));

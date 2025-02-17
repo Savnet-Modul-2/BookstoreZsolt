@@ -12,6 +12,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class UserService {
         String userVerificationCode = CodeGenerator.generateCode();
         user.setVerificationCode(userVerificationCode);
         user.setVerificationCodeTime(LocalDateTime.now());
-        emailService.sendVerificationCodeMail(new EmailDetails(user.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, CodeGenerator.CODE_EMAIL_STRING.formatted(userVerificationCode)));
+        emailService.sendVerificationCodeMail(new EmailDetails(user.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_STRING.formatted(userVerificationCode)));
         return userRepository.save(user);
     }
 
@@ -50,11 +51,12 @@ public class UserService {
 
     public User verifyUserCode(Long id, String code) throws CodeExpirationTimeException {
         User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (user.getVerificationCode().equals(code) && user.getVerificationCodeTime().isBefore(LocalDateTime.now().plusHours(1))) {
+        Duration duration = Duration.between(user.getVerificationCodeTime(), LocalDateTime.now());
+        if (user.getVerificationCode().equals(code) && duration.toMinutes() < 60) {
             user.setVerifiedAccount(true);
             user.setVerificationCodeTime(null);
             user.setVerificationCode(null);
-        }else{
+        } else {
             throw new CodeExpirationTimeException("The time for code verification has expired");
         }
         return userRepository.save(user);
