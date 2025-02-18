@@ -9,9 +9,7 @@ import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +22,7 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-    @PersistenceContext
-    private EntityManager entityManager;
+
     @Autowired
     private EmailService emailService;
 

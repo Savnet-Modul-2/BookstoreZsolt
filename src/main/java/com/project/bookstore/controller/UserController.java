@@ -2,9 +2,6 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
-import com.project.bookstore.exceptions.CodeExpirationTimeException;
-import com.project.bookstore.exceptions.UserAccountNotVerifiedException;
-import com.project.bookstore.exceptions.UserBadCredentialsException;
 import com.project.bookstore.exceptions.UserValidationException;
 import com.project.bookstore.helper.UserValidator;
 import com.project.bookstore.mapper.UserMapper;

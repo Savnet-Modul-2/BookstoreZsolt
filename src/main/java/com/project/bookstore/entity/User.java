@@ -1,6 +1,7 @@
 package com.project.bookstore.entity;
 
 
+import com.project.bookstore.entity.types.Gender;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ public class User {
     private boolean verifiedAccount;
     @Column(name = "verificationCode")
     private String verificationCode;
-    @Column(name="verificationCodeTime")
+    @Column(name = "verificationCodeTime")
     private LocalDateTime verificationCodeTime;
 
     public Long getId() {

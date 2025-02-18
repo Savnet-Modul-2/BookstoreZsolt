@@ -3,9 +3,7 @@ package com.project.bookstore.mapper;
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.helper.PasswordEncryptor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;

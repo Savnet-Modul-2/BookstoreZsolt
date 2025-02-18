@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.security.NoSuchAlgorithmException;
+
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -48,6 +50,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleUserAccountNotVerifiedException(UserAccountNotVerifiedException userAccountNotVerifiedException) {
         ErrorDetail errorDetail = new ErrorDetail(userAccountNotVerifiedException.getMessage());
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchAlgorithmException.class)
+    public ResponseEntity<?>handleNoSuchAlgorithmException(NoSuchAlgorithmException noSuchAlgorithmException){
+        ErrorDetail errorDetail=new ErrorDetail(noSuchAlgorithmException.getMessage());
+        return new ResponseEntity<>(errorDetail,BAD_REQUEST);
     }
 
 }

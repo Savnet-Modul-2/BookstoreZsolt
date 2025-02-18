@@ -1,23 +1,18 @@
 package com.project.bookstore.dto;
 
-import com.project.bookstore.entity.types.Gender;
+import com.project.bookstore.entity.Library;
 
 import java.time.LocalDateTime;
 
-public class UserDto {
+public class LibrarianDto {
     private Long id;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
-    private String phoneNumber;
     private String password;
-    private String country;
-    private Gender gender;
-    private int yearOfBirth;
+    private LibraryDto library;
     private boolean verifiedAccount;
     private String verificationCode;
     private LocalDateTime verificationCodeTime;
-
     public Long getId() {
         return id;
     }
@@ -26,20 +21,12 @@ public class UserDto {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -50,14 +37,6 @@ public class UserDto {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -66,29 +45,6 @@ public class UserDto {
         this.password = password;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public int getYearOfBirth() {
-        return yearOfBirth;
-    }
-
-    public void setYearOfBirth(int yearOfBirth) {
-        this.yearOfBirth = yearOfBirth;
-    }
 
     public boolean isVerifiedAccount() {
         return verifiedAccount;
@@ -112,5 +68,13 @@ public class UserDto {
 
     public void setVerificationCodeTime(LocalDateTime verificationCodeTime) {
         this.verificationCodeTime = verificationCodeTime;
+    }
+
+    public LibraryDto getLibrary() {
+        return library;
+    }
+
+    public void setLibrary(LibraryDto library) {
+        this.library = library;
     }
 }
