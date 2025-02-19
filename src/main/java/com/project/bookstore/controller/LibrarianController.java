@@ -2,13 +2,20 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.LibrarianDto;
 import com.project.bookstore.entity.Librarian;
+import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.mapper.LibrarianMapper;
 import com.project.bookstore.service.LibrarianService;
+import com.project.bookstore.validator.LibrarianValidator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -18,9 +25,23 @@ public class LibrarianController {
     private LibrarianService librarianService;
     @Autowired
     private LibrarianMapper librarianMapper;
+    @Autowired
+    private LibrarianValidator librarianValidator;
+
+    @InitBinder("librarianDto")
+    protected void initBinder(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(librarianValidator);
+    }
 
     @PostMapping
-    public ResponseEntity<?> createLibrarian(@RequestBody LibrarianDto librarianDto) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> createLibrarian(@Valid @RequestBody LibrarianDto librarianDto, BindingResult bindingResult) throws NoSuchAlgorithmException {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorMap = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMap.put(error.getField(), error.getDefaultMessage());
+            }
+            throw new EntityValidationException(errorMap);
+        }
         Librarian createdLibrarian = librarianService.createLibrarian(librarianMapper.mapLibrarianFromLibrarianDto(librarianDto));
         return ResponseEntity.ok(librarianMapper.mapLibrarianDtoFromLibrarian(createdLibrarian));
     }

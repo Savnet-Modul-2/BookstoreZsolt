@@ -1,4 +1,4 @@
-package com.project.bookstore.helper;
+package com.project.bookstore.validator;
 
 import com.project.bookstore.dto.UserDto;
 import org.springframework.stereotype.Component;
@@ -21,20 +21,20 @@ public class UserValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         UserDto userDTO = (UserDto) target;
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "firstName", "firstName.required","firstName field is required");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "firstName", "firstName.required", "firstName field is required");
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lastName", "lastName.required","lastName field is required");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lastName", "lastName.required", "lastName field is required");
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.required","password field is required");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.required", "password field is required");
 
-        if (userDTO.getPhoneNumber() == null) {
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "phoneNumber", "phoneNumber.required","phoneNumber field is required");
+        if (userDTO.getPhoneNumber().isEmpty()) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "phoneNumber", "phoneNumber.required", "phoneNumber field is required");
         } else if (!Pattern.matches(PHONE_NUMBER_PATTERN, userDTO.getPhoneNumber())) {
             errors.rejectValue("phoneNumber", "phoneNumber.invalid", "Invalid phone number format");
         }
 
-        if (userDTO.getEmail() == null) {
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "email.required");
+        if (userDTO.getEmail().isEmpty()) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "email.required", "email field is required");
         } else if (!Pattern.matches(EMAIL_PATTERN, userDTO.getEmail())) {
             errors.rejectValue("email", "email.invalid", "Invalid email format");
         }

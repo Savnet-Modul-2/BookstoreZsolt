@@ -28,9 +28,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, NOT_FOUND);
     }
 
-    @ExceptionHandler(UserValidationException.class)
-    public ResponseEntity<?> handleUserValidationException(UserValidationException userValidationException) {
-        ErrorDetail errorDetail = new ErrorDetail(userValidationException.getErrors());
+    @ExceptionHandler(EntityValidationException.class)
+    public ResponseEntity<?> handleUserValidationException(EntityValidationException entityValidationException) {
+        ErrorDetail errorDetail = new ErrorDetail(entityValidationException.getErrors());
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 

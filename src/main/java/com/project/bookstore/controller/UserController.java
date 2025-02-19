@@ -2,16 +2,16 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
-import com.project.bookstore.exceptions.UserValidationException;
-import com.project.bookstore.helper.UserValidator;
+import com.project.bookstore.exceptions.EntityValidationException;
+import com.project.bookstore.validator.UserValidator;
 import com.project.bookstore.mapper.UserMapper;
 import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,13 +38,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody @Validated UserDto userDto, BindingResult bindingResult) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) throws NoSuchAlgorithmException {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
                 errorMap.put(error.getField(), error.getDefaultMessage());
             }
-            throw new UserValidationException(errorMap);
+            throw new EntityValidationException(errorMap);
         }
         User createdUser = userService.createUser(userMapper.mapUserDtoToUser(userDto));
         return ResponseEntity.ok(userMapper.mapUserToUserDto(createdUser));
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id, @RequestBody Map<String, String> codeMap) {
+    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id,@RequestBody Map<String, String> codeMap) {
         User verifiedUser = userService.verifyUserCode(id, codeMap.get("verifiableCode"));
         return ResponseEntity.ok(userMapper.mapUserToUserDto(verifiedUser));
     }
