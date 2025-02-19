@@ -1,5 +1,7 @@
 package com.project.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 public class LibraryDto {
@@ -7,10 +9,10 @@ public class LibraryDto {
     private String name;
     private String city;
     private String phoneNumber;
-
+    @JsonIgnore
     private LibrarianDto librarian;
-
     private List<BookDto> books;
+
     public Long getId() {
         return id;
     }

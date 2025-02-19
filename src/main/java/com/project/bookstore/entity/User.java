@@ -1,6 +1,5 @@
 package com.project.bookstore.entity;
 
-
 import com.project.bookstore.entity.types.Gender;
 import jakarta.persistence.*;
 

@@ -1,7 +1,6 @@
 package com.project.bookstore.mapper;
 
 import com.project.bookstore.dto.LibrarianDto;
-import com.project.bookstore.dto.LibraryDto;
 import com.project.bookstore.entity.Librarian;
 import com.project.bookstore.helper.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,5 @@
 package com.project.bookstore.dto;
 
-import com.project.bookstore.entity.Library;
-
 import java.time.LocalDateTime;
 
 public class LibrarianDto {

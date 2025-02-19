@@ -5,7 +5,6 @@ import com.project.bookstore.entity.Library;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,7 @@ public class LibraryMapper {
     @Autowired
     private BookMapper bookMapper;
 
-    public Library mapLibraryFromLibraryDto(LibraryDto libraryDto){
+    public Library mapLibraryFromLibraryDto(LibraryDto libraryDto) {
         Library library = new Library();
         library.setId(libraryDto.getId());
         library.setName(libraryDto.getName());

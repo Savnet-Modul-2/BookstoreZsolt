@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity(name = "librarian")
 @Table(name = "librarian", schema = "public")
-public class Librarian{
+public class Librarian {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +18,8 @@ public class Librarian{
     @Column(name = "password")
     private String password;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
-            fetch = FetchType.LAZY,
+
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true)
     @JoinColumn(name = "librarian_id", referencedColumnName = "id")
     private Library library;
@@ -70,6 +70,7 @@ public class Librarian{
 
     public void setLibrary(Library library) {
         this.library = library;
+        library.setLibrarian(this);
     }
 
     public boolean isVerifiedAccount() {

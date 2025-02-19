@@ -33,7 +33,6 @@ public class LibrarianService {
         String librarianVerificationCode = CodeGenerator.generateCode();
         librarian.setVerificationCode(CodeGenerator.generateCode());
         librarian.setVerificationCodeTime(LocalDateTime.now());
-        librarian.getLibrary().setLibrarian(librarian);
         emailService.sendEmail(new EmailDetails(librarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_STRING.formatted(librarianVerificationCode)));
         return librarianRepository.save(librarian);
     }

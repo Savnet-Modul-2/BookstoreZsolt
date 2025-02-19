@@ -1,7 +1,6 @@
 package com.project.bookstore.repository;
 
 import com.project.bookstore.entity.Librarian;
-import com.project.bookstore.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
