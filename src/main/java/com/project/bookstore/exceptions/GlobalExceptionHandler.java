@@ -53,9 +53,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(NoSuchAlgorithmException.class)
-    public ResponseEntity<?>handleNoSuchAlgorithmException(NoSuchAlgorithmException noSuchAlgorithmException){
-        ErrorDetail errorDetail=new ErrorDetail(noSuchAlgorithmException.getMessage());
-        return new ResponseEntity<>(errorDetail,BAD_REQUEST);
+    public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException noSuchAlgorithmException) {
+        ErrorDetail errorDetail = new ErrorDetail(noSuchAlgorithmException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotVerifiedException.class)
+    public ResponseEntity<?> handleEntityNotVerifiedException(EntityNotVerifiedException entityNotVerifiedException) {
+        ErrorDetail errorDetail = new ErrorDetail(entityNotVerifiedException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 
 }

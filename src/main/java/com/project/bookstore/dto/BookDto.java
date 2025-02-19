@@ -1,5 +1,6 @@
 package com.project.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
@@ -14,6 +15,7 @@ public class BookDto {
     private int nrOfPages;
     private Genre genre;
     private BookLanguage bookLanguage;
+    @JsonIgnore
     private LibraryDto libraryDto;
 
     public Long getId() {
