@@ -1,20 +1,15 @@
 package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
-import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
-import com.project.bookstore.exceptions.UserAccountNotVerifiedException;
-import com.project.bookstore.exceptions.UserBadCredentialsException;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
-import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.LibrarianRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,11 +32,11 @@ public class LibrarianService {
         return librarianRepository.save(librarian);
     }
 
-    public Librarian getLibrarianById(Long id) {
+    public Librarian findLibrarianById(Long id) {
         return librarianRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<Librarian> getAllLibrarians() {
+    public List<Librarian> findAllLibrarians() {
         return librarianRepository.findAll();
     }
 

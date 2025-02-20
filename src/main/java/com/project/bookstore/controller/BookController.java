@@ -50,12 +50,12 @@ public class BookController {
 
     @GetMapping("/{bookId}")
     public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
-        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.getBookById(bookId)));
+        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findBookById(bookId)));
     }
 
     @GetMapping
     public ResponseEntity<?> getAllBooks() {
-        return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList((bookService.getAllBooks())));
+        return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList((bookService.findAllBooks())));
     }
 
 
@@ -81,7 +81,7 @@ public class BookController {
     @GetMapping("/page/{numberOfBooks}")
     public ResponseEntity<?> getAllBookPaginated(@PathVariable(name = "numberOfBooks") int numberOfBooks) {
         Pageable pageWithNumberOfBooks = PageRequest.of(0, numberOfBooks);
-        Page<Book> foundBooks = bookService.getAllBookPaginated(pageWithNumberOfBooks);
+        Page<Book> foundBooks = bookService.findAllBooksPaginated(pageWithNumberOfBooks);
         return ResponseEntity.ok(foundBooks.map(book -> bookMapper.mapBookDtoFromBook(book)));
     }
 }

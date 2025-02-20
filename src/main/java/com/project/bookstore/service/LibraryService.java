@@ -18,11 +18,11 @@ public class LibraryService {
     @Autowired
     private BookRepository bookRepository;
 
-    public Library getLibraryById(Long id) {
+    public Library findLibraryById(Long id) {
         return libraryRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<Library> getAllLibraries() {
+    public List<Library> findAllLibraries() {
         return libraryRepository.findAll();
     }
 

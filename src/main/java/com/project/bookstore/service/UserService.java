@@ -22,10 +22,8 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private EmailService emailService;
-
 
     public User createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {

@@ -48,13 +48,13 @@ public class LibrarianController {
 
     @GetMapping("/{librarianId}")
     public ResponseEntity<?> getLibrarianById(@PathVariable(name = "librarianId") Long librarianId) {
-        Librarian foundLibrarian = librarianService.getLibrarianById(librarianId);
+        Librarian foundLibrarian = librarianService.findLibrarianById(librarianId);
         return ResponseEntity.ok(librarianMapper.mapLibrarianDtoFromLibrarian(foundLibrarian));
     }
 
     @GetMapping
     public ResponseEntity<?> getAllLibrarians() {
-        return ResponseEntity.ok(librarianMapper.mapLibrarianDtoListFromLibrarianList(librarianService.getAllLibrarians()));
+        return ResponseEntity.ok(librarianMapper.mapLibrarianDtoListFromLibrarianList(librarianService.findAllLibrarians()));
     }
 
     @DeleteMapping("/{librarianId}")

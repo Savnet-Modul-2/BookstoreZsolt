@@ -31,11 +31,11 @@ public class BookService {
 
     }
 
-    public Book getBookById(Long id) {
+    public Book findBookById(Long id) {
         return bookRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<Book> getAllBooks() {
+    public List<Book> findAllBooks() {
         return bookRepository.findAll();
     }
 
@@ -55,7 +55,7 @@ public class BookService {
          return bookRepository.save(foundBook);
     }
 
-    public Page<Book> getAllBookPaginated(Pageable pageable){
+    public Page<Book> findAllBooksPaginated(Pageable pageable){
         return bookRepository.findAll(pageable);
     }
 

@@ -2,7 +2,6 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.BookDto;
 import com.project.bookstore.dto.LibraryDto;
-import com.project.bookstore.entity.Book;
 import com.project.bookstore.entity.Library;
 import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.mapper.BookMapper;
@@ -55,13 +54,13 @@ public class LibraryController {
 
     @GetMapping("/{libraryId}")
     public ResponseEntity<?> getLibraryById(@PathVariable(name = "libraryId") Long libraryId) {
-        Library foundLibrary = libraryService.getLibraryById(libraryId);
+        Library foundLibrary = libraryService.findLibraryById(libraryId);
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(foundLibrary));
     }
 
     @GetMapping()
     public ResponseEntity<?> getAllLibraries() {
-        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.getAllLibraries()));
+        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.findAllLibraries()));
     }
 
     @PutMapping("/{libraryId}")
