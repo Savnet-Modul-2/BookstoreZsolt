@@ -58,6 +58,13 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList((bookService.findAllBooks())));
     }
 
+    @GetMapping("/page")
+    public ResponseEntity<?> getAllBookPaginated(@RequestParam(name="pageSize") int pageSize,@RequestParam(name="pageNumber")int pageNumber) {
+        Pageable pageWithNumberOfBooks = PageRequest.of(pageSize, pageNumber);
+        Page<Book> foundBooks = bookService.findAllBooksPaginated(pageWithNumberOfBooks);
+        return ResponseEntity.ok(foundBooks.map(book -> bookMapper.mapBookDtoFromBook(book)));
+    }
+
 
     @DeleteMapping("/{bookId}")
     public ResponseEntity<?> deleteBookById(@PathVariable(name = "bookId") Long bookId) {
@@ -76,12 +83,5 @@ public class BookController {
         }
         Book updatedBook = bookService.updateBookById(bookId, bookMapper.mapBookFromBookDto(bookDto));
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(updatedBook));
-    }
-
-    @GetMapping("/page/{numberOfBooks}")
-    public ResponseEntity<?> getAllBookPaginated(@PathVariable(name = "numberOfBooks") int numberOfBooks) {
-        Pageable pageWithNumberOfBooks = PageRequest.of(0, numberOfBooks);
-        Page<Book> foundBooks = bookService.findAllBooksPaginated(pageWithNumberOfBooks);
-        return ResponseEntity.ok(foundBooks.map(book -> bookMapper.mapBookDtoFromBook(book)));
     }
 }
