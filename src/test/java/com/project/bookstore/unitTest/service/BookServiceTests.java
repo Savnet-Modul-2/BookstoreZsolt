@@ -1,6 +1,7 @@
 package com.project.bookstore.unitTest.service;
 
 import com.project.bookstore.entity.Book;
+import com.project.bookstore.entity.Library;
 import com.project.bookstore.repository.BookRepository;
 import com.project.bookstore.repository.LibraryRepository;
 import com.project.bookstore.service.BookService;
@@ -45,26 +46,66 @@ public class BookServiceTests {
         AssertionsForClassTypes.assertThat(capturedBook).isEqualTo(testBook);
     }
 
-    //TODO: write test for addBookToLibrary
+    @Test
+    public void testAddBookToLibrary() {
+        Library testLibrary = new Library();
+        testLibrary.setId(1L);
+        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+        bookService.addBookToLibrary(testLibrary.getId(), testBook);
+        ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
+        Mockito.verify(libraryRepository).save(libraryArgumentCaptor.capture());
+        Library capturedLibrary = libraryArgumentCaptor.getValue();
+        Assertions.assertThat(capturedLibrary.getBooks()).contains(testBook);
+    }
+
+    @Test
+    public void testAddBookToWrongLibraryIdThrowsException() {
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Assertions.assertThatThrownBy(() -> bookService.addBookToLibrary(Mockito.anyLong(), testBook))
+                .isInstanceOf(EntityNotFoundException.class);
+        Mockito.verify(libraryRepository, Mockito.never()).save(Mockito.any());
+    }
 
     @Test
     public void testFindBookById() {
-        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.of(testBook));
-        Book foundBook = bookService.findBookById(1L);
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        Book foundBook = bookService.findBookById(testBook.getId());
         AssertionsForClassTypes.assertThat(foundBook).isEqualTo(testBook);
-        Mockito.verify(bookRepository, Mockito.times(1)).findById(1L);
+        Mockito.verify(bookRepository, Mockito.times(1)).findById(testBook.getId());
     }
 
     @Test
     public void testFindBookByIdThrowsException() {
-        Mockito.when(bookRepository.findById(1L)).thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> bookService.findBookById(1L))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(Mockito.anyString());
-        Mockito.verify(bookRepository, Mockito.times(1)).findById(1L);
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
+        Assertions.assertThatThrownBy(() -> bookService.findBookById(testBook.getId()))
+                .isInstanceOf(EntityNotFoundException.class);
+        Mockito.verify(bookRepository, Mockito.times(1)).findById(testBook.getId());
     }
 
-    //TODO: write tests for the other methods inside BookService
+    @Test
+    public void testFindAllBooks() {
+        bookService.findAllBooks();
+        Mockito.verify(bookRepository).findAll();
+    }
 
+    @Test
+    public void testDeleteBookById() {
+        bookService.deleteBookById(testBook.getId());
+        Mockito.verify(bookRepository).deleteById(testBook.getId());
+    }
 
+    @Test
+    public void testBookShouldBeUpdated() {
+        Book newBook = new Book();
+        newBook.setId(1L);
+        newBook.setTitle("newTestTitle");
+        newBook.setAuthor("newTestAuthor");
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        bookService.updateBookById(newBook.getId(), newBook);
+        ArgumentCaptor<Book> bookArgumentCaptor = ArgumentCaptor.forClass(Book.class);
+        Mockito.verify(bookRepository).save(bookArgumentCaptor.capture());
+        Book capturedBook = bookArgumentCaptor.getValue();
+        AssertionsForClassTypes.assertThat(capturedBook).isEqualTo(testBook);
+
+    }
 }

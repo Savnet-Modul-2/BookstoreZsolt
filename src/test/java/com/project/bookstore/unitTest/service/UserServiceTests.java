@@ -70,19 +70,18 @@ public class UserServiceTests {
 
     @Test
     public void testGetUserById() {
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        User foundUser = userService.findUserById(1L);
+        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        User foundUser = userService.findUserById(testUser.getId());
         AssertionsForClassTypes.assertThat(foundUser).isEqualTo(testUser);
-        Mockito.verify(userRepository, Mockito.times(1)).findById(1L);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(testUser.getId());
     }
 
     @Test
     public void testGetUserByIdThrowsException() {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> userService.findUserById(1L))
+        Assertions.assertThatThrownBy(() -> userService.findUserById(testUser.getId()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("User with id %s not found".formatted(1L));
-        Mockito.verify(userRepository, Mockito.times(1)).findById(1L);
+                .hasMessageContaining("User with id %s not found".formatted(testUser.getId()));
     }
 
     @Test
@@ -94,8 +93,8 @@ public class UserServiceTests {
     //TODO: should assert that service method return same User from test
     @Test
     public void testVerifyUserCodeWithUserFound() {
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        userService.verifyUserCode(1L, testUser.getVerificationCode());
+        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        userService.verifyUserCode(testUser.getId(), testUser.getVerificationCode());
         Assertions.assertThat(testUser.getVerificationCode()).isEqualTo(null);
 
         //TODO: isEqualTo expect a LDT String, should convert somehow to null
@@ -106,8 +105,8 @@ public class UserServiceTests {
     @Test
     public void testVerifyUserCodeNotEqualThrowException() {
         String errorVerificationCode = "errorVerificationCode";
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        Assertions.assertThatThrownBy(() -> userService.verifyUserCode(1L, errorVerificationCode))
+        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        Assertions.assertThatThrownBy(() -> userService.verifyUserCode(testUser.getId(), errorVerificationCode))
                 .isInstanceOf(CodeExpirationTimeException.class)
                 .hasMessageContaining("The time for code verification has expired");
     }
