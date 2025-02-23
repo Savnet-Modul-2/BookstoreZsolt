@@ -17,20 +17,17 @@ public class Librarian {
     private String email;
     @Column(name = "password")
     private String password;
-
-
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true)
-    @JoinColumn(name = "librarian_id", referencedColumnName = "id")
+    @JoinColumn(name = "librarian_id",
+            referencedColumnName = "id")
     private Library library;
-
     @Column(name = "verifiedAccount")
     private boolean verifiedAccount;
     @Column(name = "verificationCode")
     private String verificationCode;
     @Column(name = "verificationCodeTime")
     private LocalDateTime verificationCodeTime;
-
 
     public Long getId() {
         return id;

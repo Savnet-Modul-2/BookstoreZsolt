@@ -55,7 +55,7 @@ public class UserServiceTests {
 
     @Test
     public void testUserEmailExistsThrowsException() {
-        Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.existsByEmail(testUser.getEmail())).thenReturn(true);
         Assertions.assertThatThrownBy(() -> userService.createUser(testUser))
                 .isInstanceOf(EntityExistsException.class)
                 .hasMessageContaining("User with the email address %s already exists".formatted(testUser.getEmail()));
@@ -64,14 +64,14 @@ public class UserServiceTests {
 
     @Test
     public void testGetAllUsers() {
-        userService.findAllUsers();
+        userService.getAllUsers();
         Mockito.verify(userRepository).findAll();
     }
 
     @Test
     public void testGetUserById() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        User foundUser = userService.findUserById(testUser.getId());
+        User foundUser = userService.getUserById(testUser.getId());
         AssertionsForClassTypes.assertThat(foundUser).isEqualTo(testUser);
         Mockito.verify(userRepository, Mockito.times(1)).findById(testUser.getId());
     }
@@ -79,7 +79,7 @@ public class UserServiceTests {
     @Test
     public void testGetUserByIdThrowsException() {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> userService.findUserById(testUser.getId()))
+        Assertions.assertThatThrownBy(() -> userService.getUserById(testUser.getId()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User with id %s not found".formatted(testUser.getId()));
     }

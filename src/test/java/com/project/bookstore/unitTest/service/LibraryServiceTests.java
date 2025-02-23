@@ -39,23 +39,27 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testFindLibraryById() {
+    public void testGetLibraryById() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
-        Library foundLibrary = libraryService.findLibraryById(testLibrary.getId());
+
+        Library foundLibrary = libraryService.getLibraryById(testLibrary.getId());
         AssertionsForClassTypes.assertThat(foundLibrary).isEqualTo(testLibrary);
+
         Mockito.verify(libraryRepository, Mockito.times(1)).findById(testLibrary.getId());
     }
 
     @Test
-    public void testFindLibraryByIdThrowsException() {
+    public void testGetLibraryByIdThrowsException() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> libraryService.findLibraryById(testLibrary.getId()))
+
+        Assertions.assertThatThrownBy(() -> libraryService.getLibraryById(testLibrary.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
-    public void testFindAllLibraries() {
-        libraryService.findAllLibraries();
+    public void testGetAllLibraries() {
+        libraryService.getAllLibraries();
+
         Mockito.verify(libraryRepository).findAll();
     }
 
@@ -64,17 +68,21 @@ public class LibraryServiceTests {
         Book testBook = new Book();
         testLibrary.getLibrarian().setVerifiedAccount(true);
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+
         libraryService.addBookToLibrary(testLibrary.getId(), testBook);
         ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
         Mockito.verify(libraryRepository).save(libraryArgumentCaptor.capture());
         Library capturedLibrary = libraryArgumentCaptor.getValue();
+
         Assertions.assertThat(capturedLibrary.getBooks()).contains(testBook);
     }
 
     @Test
     public void testAddBookToLibraryWhenLibrarianIsNotVerifiedThrowsException() {
         Book testBook = new Book();
+
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+
         Assertions.assertThatThrownBy(() -> libraryService.addBookToLibrary(testLibrary.getId(), testBook))
                 .isInstanceOf(EntityNotVerifiedException.class)
                 .hasMessageContaining("The user's account is not verified to perform this action");
@@ -85,6 +93,7 @@ public class LibraryServiceTests {
     public void testAddBookToWrongLibraryIdThrowsException() {
         Book testBook = new Book();
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
+
         Assertions.assertThatThrownBy(() -> libraryService.addBookToLibrary(testLibrary.getId(), testBook))
                 .isInstanceOf(EntityNotFoundException.class);
         Mockito.verify(libraryRepository, Mockito.never()).save(Mockito.any());
@@ -96,10 +105,12 @@ public class LibraryServiceTests {
         testLibrary.getLibrarian().setVerifiedAccount(true);
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+
         libraryService.addExistingBookToLibrary(testLibrary.getId(), testBook.getId());
         ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
         Mockito.verify(libraryRepository).save(libraryArgumentCaptor.capture());
         Library capturedLibrary = libraryArgumentCaptor.getValue();
+
         Assertions.assertThat(capturedLibrary.getBooks()).contains(testBook);
     }
 
@@ -108,6 +119,7 @@ public class LibraryServiceTests {
         Book testBook = new Book();
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+
         Assertions.assertThatThrownBy(() -> libraryService.addExistingBookToLibrary(testLibrary.getId(), testBook.getId()))
                 .isInstanceOf(EntityNotVerifiedException.class)
                 .hasMessageContaining("The user's account is not verified to perform this action");
@@ -119,12 +131,12 @@ public class LibraryServiceTests {
         newLibrary.setId(1L);
         newLibrary.setName("newLibraryName");
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+
         libraryService.updateLibraryById(testLibrary.getId(), newLibrary);
         ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
         Mockito.verify(libraryRepository).save(libraryArgumentCaptor.capture());
         Library capturedLibrary = libraryArgumentCaptor.getValue();
+
         AssertionsForClassTypes.assertThat(capturedLibrary).isEqualTo(testLibrary);
     }
-
-
 }

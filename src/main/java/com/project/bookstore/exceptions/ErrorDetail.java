@@ -18,7 +18,6 @@ public class ErrorDetail {
         this.errorMap = errorMap;
     }
 
-
     public Map<String, String> getErrorMap() {
         return errorMap;
     }

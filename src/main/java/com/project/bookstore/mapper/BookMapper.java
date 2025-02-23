@@ -4,14 +4,12 @@ import com.project.bookstore.dto.BookDto;
 import com.project.bookstore.entity.Book;
 import org.springframework.stereotype.Component;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class BookMapper {
 
-    public Book mapBookFromBookDto(BookDto bookDto){
+    public Book mapBookFromBookDto(BookDto bookDto) {
         Book book = new Book();
         book.setId(bookDto.getId());
         book.setIsbn(bookDto.getIsbn());
@@ -37,16 +35,11 @@ public class BookMapper {
         return bookDto;
     }
 
-    public List<Book> mapBookListFromBookDtoList(List<BookDto> bookDtoList) throws NoSuchAlgorithmException {
-        List<Book> bookList = new ArrayList<>();
-        for (BookDto bookDto : bookDtoList) {
-            bookList.add(mapBookFromBookDto(bookDto));
-        }
-        return bookList;
+    public List<Book> mapBookListFromBookDtoList(List<BookDto> bookDtoList) {
+        return bookDtoList.stream().map(this::mapBookFromBookDto).toList();
     }
 
     public List<BookDto> mapBookDtoListFromBookList(List<Book> bookList) {
         return bookList.stream().map(this::mapBookDtoFromBook).toList();
     }
-
 }

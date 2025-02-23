@@ -26,7 +26,7 @@ public class UserService {
     private EmailService emailService;
 
     public User createUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new EntityExistsException("User with the email address %s already exists".formatted(user.getEmail()));
         }
         String userVerificationCode = CodeGenerator.generateCode();
@@ -36,20 +36,18 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> findAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
-    }
-
-    public void deleteUserById(Long userId) {
-        userRepository.deleteById(userId);
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
     }
 
     public User verifyUserCode(Long id, String code) {
-        User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        User user = userRepository.findById(id)
+                .orElseThrow(EntityNotFoundException::new);
         Duration duration = Duration.between(user.getVerificationCodeTime(), LocalDateTime.now());
         if (user.getVerificationCode().equals(code) && duration.toMinutes() < 60) {
             user.setVerifiedAccount(true);
@@ -62,7 +60,8 @@ public class UserService {
     }
 
     public Long getUserIdAfterLogin(String userEmail, String userPassword) throws NoSuchAlgorithmException {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(EntityNotFoundException::new);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
         if (!user.isVerifiedAccount()) {
             throw new UserAccountNotVerifiedException("This account is not yet verified");
         }
@@ -72,4 +71,7 @@ public class UserService {
         return user.getId();
     }
 
+    public void deleteUserById(Long userId) {
+        userRepository.deleteById(userId);
+    }
 }

@@ -11,6 +11,7 @@ public class LibrarianDto {
     private boolean verifiedAccount;
     private String verificationCode;
     private LocalDateTime verificationCodeTime;
+
     public Long getId() {
         return id;
     }
@@ -42,7 +43,6 @@ public class LibrarianDto {
     public void setPassword(String password) {
         this.password = password;
     }
-
 
     public boolean isVerifiedAccount() {
         return verifiedAccount;

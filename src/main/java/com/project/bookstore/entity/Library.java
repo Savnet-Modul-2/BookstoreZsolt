@@ -18,13 +18,11 @@ public class Library {
     private String city;
     @Column(name = "phoneNumber")
     private String phoneNumber;
-
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
             fetch = FetchType.LAZY,
             orphanRemoval = true,
             mappedBy = "library")
     private Librarian librarian;
-
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
             fetch = FetchType.LAZY,
             orphanRemoval = true,
@@ -83,6 +81,4 @@ public class Library {
         this.books.add(book);
         book.setLibrary(this);
     }
-
-
 }

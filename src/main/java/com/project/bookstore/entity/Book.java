@@ -28,11 +28,9 @@ public class Book {
     private Genre genre;
     @Enumerated(EnumType.STRING)
     private BookLanguage bookLanguage;
-
     @ManyToOne()
     @JoinColumn(name = "library_id")
     private Library library;
-
 
     public Long getId() {
         return id;

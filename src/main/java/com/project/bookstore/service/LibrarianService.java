@@ -22,7 +22,7 @@ public class LibrarianService {
     private EmailService emailService;
 
     public Librarian createLibrarian(Librarian librarian) {
-        if (librarianRepository.findByEmail(librarian.getEmail()).isPresent()) {
+        if (librarianRepository.existsByEmail(librarian.getEmail())) {
             throw new EntityExistsException("Librarian with the email address %s already exists".formatted(librarian.getEmail()));
         }
         String librarianVerificationCode = CodeGenerator.generateCode();
@@ -32,20 +32,18 @@ public class LibrarianService {
         return librarianRepository.save(librarian);
     }
 
-    public Librarian findLibrarianById(Long id) {
-        return librarianRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public Librarian getLibrarianById(Long id) {
+        return librarianRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with id %s not found".formatted(id)));
     }
 
-    public List<Librarian> findAllLibrarians() {
+    public List<Librarian> getAllLibrarians() {
         return librarianRepository.findAll();
     }
 
-    public void deleteLibrarianById(Long id) {
-        librarianRepository.deleteById(id);
-    }
-
     public Librarian verifyLibrarian(Long id, String verificationCode) {
-        Librarian librarian = librarianRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Librarian librarian = librarianRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with id %s not found".formatted(id)));
         Duration duration = Duration.between(librarian.getVerificationCodeTime(), LocalDateTime.now());
         if (librarian.getVerificationCode().equals(verificationCode) && duration.toMinutes() < 60) {
             librarian.setVerifiedAccount(true);
@@ -57,5 +55,8 @@ public class LibrarianService {
         return librarianRepository.save(librarian);
     }
 
+    public void deleteLibrarianById(Long id) {
+        librarianRepository.deleteById(id);
+    }
 }
 

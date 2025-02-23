@@ -4,6 +4,7 @@ import com.project.bookstore.entity.User;
 import com.project.bookstore.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +18,24 @@ public class UserRepositoryTests {
 
     @Autowired
     private UserRepository userRepository;
+    private User testUser;
+
+    @BeforeEach
+    void setUp() {
+        testUser = new User();
+        testUser.setEmail("test@gmail.com");
+    }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         userRepository.deleteAll();
     }
 
     @Test
     public void testShouldFindUserByEmail() {
         String testEmail = "test@gmail.com";
-        User testUser = new User();
-        testUser.setEmail(testEmail);
-        userRepository.save(testUser);
 
+        userRepository.save(testUser);
         boolean expected = userRepository.findByEmail(testEmail).isPresent();
 
         Assertions.assertThat(expected).isTrue();
@@ -39,7 +45,26 @@ public class UserRepositoryTests {
     public void testShouldNotFindUserByEmail() {
         String testEmail = "test@gmail.com";
 
-        boolean expected=userRepository.findByEmail(testEmail).isPresent();
+        boolean expected = userRepository.findByEmail(testEmail).isPresent();
+
+        Assertions.assertThat(expected).isFalse();
+    }
+
+    @Test
+    public void testShouldFindLibrarianByEmailIfExists() {
+        String testEmail = "test@gmail.com";
+
+        userRepository.save(testUser);
+        boolean expected = userRepository.existsByEmail(testEmail);
+
+        Assertions.assertThat(expected).isTrue();
+    }
+
+    @Test
+    public void testShouldNotFindLibrarianByEmailNotExists() {
+        String testEmail = "test@gmail.com";
+
+        boolean expected = userRepository.existsByEmail(testEmail);
 
         Assertions.assertThat(expected).isFalse();
     }

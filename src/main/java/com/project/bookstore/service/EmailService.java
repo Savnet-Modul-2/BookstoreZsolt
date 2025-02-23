@@ -18,5 +18,4 @@ public class EmailService {
         mailMessage.setSubject(details.getSubject());
         mailSender.send(mailMessage);
     }
-
 }

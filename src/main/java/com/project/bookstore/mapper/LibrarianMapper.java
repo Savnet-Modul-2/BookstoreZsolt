@@ -15,6 +15,7 @@ public class LibrarianMapper {
     @Autowired
     private LibraryMapper libraryMapper;
 
+    //TODO: check for NoSuchAlgoritmException
     public Librarian mapLibrarianFromLibrarianDto(LibrarianDto librarianDto) throws NoSuchAlgorithmException {
         Librarian librarian = new Librarian();
         librarian.setId(librarianDto.getId());
@@ -52,5 +53,4 @@ public class LibrarianMapper {
     public List<LibrarianDto> mapLibrarianDtoListFromLibrarianList(List<Librarian> librarianList) {
         return librarianList.stream().map(this::mapLibrarianDtoFromLibrarian).toList();
     }
-
 }

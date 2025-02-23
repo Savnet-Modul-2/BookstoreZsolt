@@ -64,4 +64,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 
+    @ExceptionHandler(RequestBodyMapKeyNotFoundException.class)
+    public ResponseEntity<?> handleRequestBodyMapKeyNotFoundException(RequestBodyMapKeyNotFoundException requestBodyMapKeyNotFoundException) {
+        ErrorDetail errorDetail = new ErrorDetail(requestBodyMapKeyNotFoundException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
 }

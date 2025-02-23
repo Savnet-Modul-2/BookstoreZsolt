@@ -5,7 +5,6 @@ import com.project.bookstore.entity.Library;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -33,15 +32,10 @@ public class LibraryMapper {
     }
 
     public List<Library> mapLibraryListFromLibraryDtoList(List<LibraryDto> libraryDtoList) {
-        List<Library> libraryList = new ArrayList<>();
-        for (LibraryDto libraryDto : libraryDtoList) {
-            libraryList.add(mapLibraryFromLibraryDto(libraryDto));
-        }
-        return libraryList;
+        return libraryDtoList.stream().map(this::mapLibraryFromLibraryDto).toList();
     }
 
     public List<LibraryDto> mapLibraryDtoListFromLibraryList(List<Library> libraryList) {
         return libraryList.stream().map(this::mapLibraryDtoFromLibrary).toList();
     }
-
 }

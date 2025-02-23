@@ -54,17 +54,17 @@ public class LibraryController {
 
     @GetMapping("/{libraryId}")
     public ResponseEntity<?> getLibraryById(@PathVariable(name = "libraryId") Long libraryId) {
-        Library foundLibrary = libraryService.findLibraryById(libraryId);
+        Library foundLibrary = libraryService.getLibraryById(libraryId);
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(foundLibrary));
     }
 
     @GetMapping()
     public ResponseEntity<?> getAllLibraries() {
-        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.findAllLibraries()));
+        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.getAllLibraries()));
     }
 
     @PutMapping("/{libraryId}")
-    public ResponseEntity<?> updateLibraryById(@PathVariable(name = "libraryId") Long libraryId,@Valid @RequestBody LibraryDto libraryDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateLibraryById(@PathVariable(name = "libraryId") Long libraryId, @Valid @RequestBody LibraryDto libraryDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {

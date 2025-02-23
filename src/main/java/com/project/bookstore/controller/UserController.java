@@ -3,6 +3,7 @@ package com.project.bookstore.controller;
 import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.EntityValidationException;
+import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
 import com.project.bookstore.validator.UserValidator;
 import com.project.bookstore.mapper.UserMapper;
 import com.project.bookstore.service.EmailService;
@@ -46,33 +47,28 @@ public class UserController {
             }
             throw new EntityValidationException(errorMap);
         }
-        User createdUser = userService.createUser(userMapper.mapUserDtoToUser(userDto));
-        return ResponseEntity.ok(userMapper.mapUserToUserDto(createdUser));
+        User createdUser = userService.createUser(userMapper.mapUserFromUserDto(userDto));
+        return ResponseEntity.ok(userMapper.mapUserDtoFromUser(createdUser));
     }
 
     @GetMapping()
     public ResponseEntity<?> findAllUsers() {
-        List<User> allUserList = userService.findAllUsers();
-        return ResponseEntity.ok(userMapper.mapUserListToUserDtoList(allUserList));
+        List<User> allUserList = userService.getAllUsers();
+        return ResponseEntity.ok(userMapper.mapUserDtoListFromUserList(allUserList));
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findUserById(@PathVariable(name = "userId") Long userId) {
-        User foundUser = userService.findUserById(userId);
-        return ResponseEntity.ok(userMapper.mapUserToUserDto(foundUser));
-    }
-
-
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUserById(@PathVariable(name = "userId") Long userId) {
-        userService.deleteUserById(userId);
-        return ResponseEntity.noContent().build();
+        User foundUser = userService.getUserById(userId);
+        return ResponseEntity.ok(userMapper.mapUserDtoFromUser(foundUser));
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id,@RequestBody Map<String, String> codeMap) {
-        User verifiedUser = userService.verifyUserCode(id, codeMap.get("verifiableCode"));
-        return ResponseEntity.ok(userMapper.mapUserToUserDto(verifiedUser));
+    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id, @RequestBody Map<String, String> codeMap) {
+        if (!codeMap.containsKey("verificationCode")) {
+            User verifiedUser = userService.verifyUserCode(id, codeMap.get("verifiableCode"));
+            return ResponseEntity.ok(userMapper.mapUserDtoFromUser(verifiedUser));
+        } else throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
     }
 
     @PutMapping("/login")
@@ -81,4 +77,9 @@ public class UserController {
         return ResponseEntity.ok(id);
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUserById(@PathVariable(name = "userId") Long userId) {
+        userService.deleteUserById(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

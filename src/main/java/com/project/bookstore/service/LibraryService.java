@@ -18,16 +18,9 @@ public class LibraryService {
     @Autowired
     private BookRepository bookRepository;
 
-    public Library findLibraryById(Long id) {
-        return libraryRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-    }
-
-    public List<Library> findAllLibraries() {
-        return libraryRepository.findAll();
-    }
-
     public Library addBookToLibrary(Long id, Book book) {
-        Library library = libraryRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Library library = libraryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(id)));
         if (!library.getLibrarian().isVerifiedAccount()) {
             throw new EntityNotVerifiedException("The user's account is not verified to perform this action");
         }
@@ -35,9 +28,20 @@ public class LibraryService {
         return libraryRepository.save(library);
     }
 
+    public Library getLibraryById(Long id) {
+        return libraryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(id)));
+    }
+
+    public List<Library> getAllLibraries() {
+        return libraryRepository.findAll();
+    }
+
     public Library addExistingBookToLibrary(Long libraryId, Long bookId) {
-        Book foundBook = bookRepository.findById(bookId).orElseThrow(EntityNotFoundException::new);
-        Library foundLibrary = libraryRepository.findById(libraryId).orElseThrow(EntityNotFoundException::new);
+        Book foundBook = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookId)));
+        Library foundLibrary = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         if (!foundLibrary.getLibrarian().isVerifiedAccount()) {
             throw new EntityNotVerifiedException("The user's account is not verified to perform this action");
         }
@@ -46,7 +50,8 @@ public class LibraryService {
     }
 
     public Library updateLibraryById(Long libraryId, Library library) {
-        Library foundLibrary = libraryRepository.findById(libraryId).orElseThrow(EntityNotFoundException::new);
+        Library foundLibrary = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         foundLibrary.setCity(library.getCity());
         foundLibrary.setName(library.getName());
         foundLibrary.setPhoneNumber(library.getPhoneNumber());

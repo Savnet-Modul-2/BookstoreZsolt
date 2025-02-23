@@ -4,13 +4,14 @@ import com.project.bookstore.dto.UserDto;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.helper.PasswordEncryptor;
 import org.springframework.stereotype.Component;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class UserMapper {
-    public User mapUserDtoToUser(UserDto userDto) throws NoSuchAlgorithmException {
+    public User mapUserFromUserDto(UserDto userDto) throws NoSuchAlgorithmException {
         User user = new User();
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
@@ -26,7 +27,7 @@ public class UserMapper {
         return user;
     }
 
-    public UserDto mapUserToUserDto(User user) {
+    public UserDto mapUserDtoFromUser(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setFirstName(user.getFirstName());
@@ -43,19 +44,16 @@ public class UserMapper {
         return userDto;
     }
 
-
-    public List<User> mapUserDtoListToUserList(List<UserDto> userDtoList) throws NoSuchAlgorithmException {
-        List<User>userList=new ArrayList<>();
-        for(UserDto userDto:userDtoList){
-            userList.add(mapUserDtoToUser(userDto));
+    //TODO: check again for NoSuchAlgorithmException
+    public List<User> mapUserListFromUserDtoList(List<UserDto> userDtoList) throws NoSuchAlgorithmException {
+        List<User> userList = new ArrayList<>();
+        for (UserDto userDto : userDtoList) {
+            userList.add(mapUserFromUserDto(userDto));
         }
         return userList;
     }
 
-    public List<UserDto> mapUserListToUserDtoList(List<User> userList) {
-        return userList.stream().map(this::mapUserToUserDto).toList();
+    public List<UserDto> mapUserDtoListFromUserList(List<User> userList) {
+        return userList.stream().map(this::mapUserDtoFromUser).toList();
     }
-
-
-
 }

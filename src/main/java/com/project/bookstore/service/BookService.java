@@ -19,44 +19,45 @@ public class BookService {
     @Autowired
     private LibraryRepository libraryRepository;
 
-
     public Book createBook(Book book) {
         return bookRepository.save(book);
     }
 
+    //TODO:method never used in BookController
     public Library addBookToLibrary(Long libraryId, Book book) {
-        Library foundLibrary = libraryRepository.findById(libraryId).orElseThrow(EntityNotFoundException::new);
+        Library foundLibrary = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         foundLibrary.addBook(book);
         return libraryRepository.save(foundLibrary);
-
     }
 
-    public Book findBookById(Long id) {
-        return bookRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public Book getBookById(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
     }
 
-    public List<Book> findAllBooks() {
+    public List<Book> getAllBooks() {
         return bookRepository.findAll();
+    }
+
+    public Page<Book> getAllBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable);
+    }
+
+    public Book updateBookById(Long id, Book book) {
+        Book foundBook = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
+        foundBook.setBookLanguage(book.getBookLanguage());
+        foundBook.setGenre(book.getGenre());
+        foundBook.setIsbn(book.getIsbn());
+        foundBook.setAuthor(book.getAuthor());
+        foundBook.setTitle(book.getTitle());
+        foundBook.setNrOfPages(book.getNrOfPages());
+        foundBook.setAppearanceDate(book.getAppearanceDate());
+        return bookRepository.save(foundBook);
     }
 
     public void deleteBookById(Long id) {
         bookRepository.deleteById(id);
     }
-
-    public Book updateBookById(Long id, Book book) {
-        Book foundBook = bookRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-         foundBook.setBookLanguage(book.getBookLanguage());
-         foundBook.setGenre(book.getGenre());
-         foundBook.setIsbn(book.getIsbn());
-         foundBook.setAuthor(book.getAuthor());
-         foundBook.setTitle(book.getTitle());
-         foundBook.setNrOfPages(book.getNrOfPages());
-         foundBook.setAppearanceDate(book.getAppearanceDate());
-         return bookRepository.save(foundBook);
-    }
-
-    public Page<Book> findAllBooksPaginated(Pageable pageable){
-        return bookRepository.findAll(pageable);
-    }
-
 }

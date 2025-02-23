@@ -42,15 +42,18 @@ public class LibrarianServiceTests {
     @Test
     public void testLibrarianIsCreated() {
         librarianService.createLibrarian(testLibrarian);
+
         ArgumentCaptor<Librarian> librarianArgumentCaptor = ArgumentCaptor.forClass(Librarian.class);
         Mockito.verify(librarianRepository).save(librarianArgumentCaptor.capture());
         Librarian capturedLibrarian = librarianArgumentCaptor.getValue();
+
         AssertionsForClassTypes.assertThat(capturedLibrarian).isEqualTo(testLibrarian);
     }
 
     @Test
     public void testLibrarianEmilExistsThrowsException() {
-        Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
+        Mockito.when(librarianRepository.existsByEmail(testLibrarian.getEmail())).thenReturn(true);
+
         Assertions.assertThatThrownBy(() -> librarianService.createLibrarian(testLibrarian))
                 .isInstanceOf(EntityExistsException.class)
                 .hasMessageContaining("Librarian with the email address %s already exists".formatted(testLibrarian.getEmail()));
@@ -58,55 +61,57 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testFindLibrarianById() {
+    public void testGetLibrarianById() {
         Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
-        Librarian foundLibrarian = librarianService.findLibrarianById(testLibrarian.getId());
+
+        Librarian foundLibrarian = librarianService.getLibrarianById(testLibrarian.getId());
         AssertionsForClassTypes.assertThat(foundLibrarian).isEqualTo(testLibrarian);
+
         Mockito.verify(librarianRepository, Mockito.times(1)).findById(testLibrarian.getId());
     }
 
     @Test
-    public void testFindLibrarianByIdThrowsException() {
+    public void testGetLibrarianByIdThrowsException() {
         Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> librarianService.findLibrarianById(testLibrarian.getId()))
+
+        Assertions.assertThatThrownBy(() -> librarianService.getLibrarianById(testLibrarian.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
         Mockito.verify(librarianRepository, Mockito.times(1)).findById(testLibrarian.getId());
     }
 
     @Test
-    public void testFindAllLibrarians() {
-        librarianService.findAllLibrarians();
+    public void testGetAllLibrarians() {
+        librarianService.getAllLibrarians();
+
         Mockito.verify(librarianRepository).findAll();
     }
 
     @Test
     public void testDeleteLibrarianById() {
         librarianService.deleteLibrarianById(testLibrarian.getId());
+
         Mockito.verify(librarianRepository).deleteById(testLibrarian.getId());
     }
 
     @Test
     public void testVerifyLibrarianCodeWithLibrarianFound() {
         Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
-        librarianService.verifyLibrarian(testLibrarian.getId(), testLibrarian.getVerificationCode());
-        Assertions.assertThat(testLibrarian.getVerificationCode()).isEqualTo(null);
 
+        librarianService.verifyLibrarian(testLibrarian.getId(), testLibrarian.getVerificationCode());
+
+        Assertions.assertThat(testLibrarian.getVerificationCode()).isEqualTo(null);
         //TODO: isEqualTo expect a LDT String, should convert somehow to null
         //Assertions.assertThat(testUser.getVerificationCodeTime());
         Assertions.assertThat(testLibrarian.isVerifiedAccount()).isEqualTo(true);
     }
 
     @Test
-    public void testVerifyLibrarianCodeNotEqualThrowException(){
+    public void testVerifyLibrarianCodeNotEqualThrowException() {
         String errorVerificationCode = "errorVerificationCode";
         Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
+
         Assertions.assertThatThrownBy(() -> librarianService.verifyLibrarian(testLibrarian.getId(), errorVerificationCode))
                 .isInstanceOf(CodeExpirationTimeException.class)
                 .hasMessageContaining("The time for code verification has expired");
     }
-
-
-
-
-
 }

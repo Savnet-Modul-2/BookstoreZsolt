@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/books")
@@ -31,7 +31,7 @@ public class BookController {
     private BookValidator bookValidator;
 
     @InitBinder("bookDto")
-    protected void initBinder(WebDataBinder webDataBinder){
+    protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(bookValidator);
     }
 
@@ -50,30 +50,20 @@ public class BookController {
 
     @GetMapping("/{bookId}")
     public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
-        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findBookById(bookId)));
+        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.getBookById(bookId)));
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllBooks() {
-        return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList((bookService.findAllBooks())));
-    }
-
-    @GetMapping("/page")
-    public ResponseEntity<?> getAllBookPaginated(@RequestParam(name="pageSize") int pageSize,@RequestParam(name="pageNumber")int pageNumber) {
-        Pageable pageWithNumberOfBooks = PageRequest.of(pageSize, pageNumber);
-        Page<Book> foundBooks = bookService.findAllBooksPaginated(pageWithNumberOfBooks);
-        return ResponseEntity.ok(foundBooks.map(book -> bookMapper.mapBookDtoFromBook(book)));
-    }
-
-
-    @DeleteMapping("/{bookId}")
-    public ResponseEntity<?> deleteBookById(@PathVariable(name = "bookId") Long bookId) {
-        bookService.deleteBookById(bookId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize") Optional<Integer> pageSize, @RequestParam(name = "pageNumber") Optional<Integer> pageNumber) {
+        if (pageSize.isPresent() && pageNumber.isPresent()) {
+            Page<Book> pageBook = bookService.getAllBooks(PageRequest.of(pageNumber.get(), pageSize.get()));
+            return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
+        }
+        return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.getAllBooks()));
     }
 
     @PutMapping("/{bookId}")
-    public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId,@Valid @RequestBody BookDto bookDto,BindingResult bindingResult) {
+    public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId, @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -83,5 +73,11 @@ public class BookController {
         }
         Book updatedBook = bookService.updateBookById(bookId, bookMapper.mapBookFromBookDto(bookDto));
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(updatedBook));
+    }
+
+    @DeleteMapping("/{bookId}")
+    public ResponseEntity<?> deleteBookById(@PathVariable(name = "bookId") Long bookId) {
+        bookService.deleteBookById(bookId);
+        return ResponseEntity.noContent().build();
     }
 }
