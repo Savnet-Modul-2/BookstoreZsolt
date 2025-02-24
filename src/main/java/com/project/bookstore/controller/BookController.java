@@ -53,6 +53,7 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.getBookById(bookId)));
     }
 
+    //TODO: Change Optional to int
     @GetMapping
     public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize") Optional<Integer> pageSize, @RequestParam(name = "pageNumber") Optional<Integer> pageNumber) {
         if (pageSize.isPresent() && pageNumber.isPresent()) {

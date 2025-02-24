@@ -6,6 +6,8 @@ import com.project.bookstore.entity.types.Genre;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "book")
 @Table(name = "book", schema = "public")
@@ -31,6 +33,11 @@ public class Book {
     @ManyToOne()
     @JoinColumn(name = "library_id")
     private Library library;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            mappedBy = "book")
+    private List<BookExemplary> bookExemplars = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -102,5 +109,13 @@ public class Book {
 
     public void setLibrary(Library library) {
         this.library = library;
+    }
+
+    public List<BookExemplary> getBookExemplars() {
+        return bookExemplars;
+    }
+
+    public void setBookExemplars(List<BookExemplary> bookExemplars) {
+        this.bookExemplars = bookExemplars;
     }
 }

@@ -5,6 +5,7 @@ import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class BookDto {
     private Long id;
@@ -15,8 +16,10 @@ public class BookDto {
     private int nrOfPages;
     private Genre genre;
     private BookLanguage bookLanguage;
+    //TODO:Removable from Mapper?
     @JsonIgnore
     private LibraryDto libraryDto;
+    private List<BookExemplaryDto> bookExemplars;
 
     public Long getId() {
         return id;

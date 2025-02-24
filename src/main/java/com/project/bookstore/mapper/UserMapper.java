@@ -51,6 +51,7 @@ public class UserMapper {
             userList.add(mapUserFromUserDto(userDto));
         }
         return userList;
+        // return userDtoList.stream().map(userDto -> mapUserFromUserDto(userDto)).toList();
     }
 
     public List<UserDto> mapUserDtoListFromUserList(List<User> userList) {

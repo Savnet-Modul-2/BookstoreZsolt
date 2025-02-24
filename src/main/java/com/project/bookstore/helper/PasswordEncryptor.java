@@ -8,8 +8,14 @@ public class PasswordEncryptor {
     private PasswordEncryptor() {
     }
 
-    public static String encryptUserPasswordWithSHA256(String userPassword) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+    public static String encryptUserPasswordWithSHA256(String userPassword){
+        MessageDigest messageDigest = null;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            //TODO:Wrapper class for NoAlgorithmFoundException
+            throw new RuntimeException(e);
+        }
         byte[] encodedHash = messageDigest.digest(userPassword.getBytes(StandardCharsets.UTF_8));
         StringBuilder hexString = new StringBuilder(2 * encodedHash.length);
         for (byte hash : encodedHash) {
