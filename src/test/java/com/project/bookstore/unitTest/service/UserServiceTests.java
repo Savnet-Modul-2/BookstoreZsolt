@@ -2,8 +2,8 @@ package com.project.bookstore.unitTest.service;
 
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
-import com.project.bookstore.exceptions.UserAccountNotVerifiedException;
-import com.project.bookstore.exceptions.UserBadCredentialsException;
+import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
+import com.project.bookstore.exceptions.EntityBadCredentialsException;
 import com.project.bookstore.repository.UserRepository;
 import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.UserService;
@@ -126,7 +126,7 @@ public class UserServiceTests {
         Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         Assertions.assertThat(testUser.isVerifiedAccount()).isFalse();
         Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), testUser.getPassword()))
-                .isInstanceOf(UserAccountNotVerifiedException.class)
+                .isInstanceOf(EntityAccountNotVerifiedException.class)
                 .hasMessageContaining("This account is not yet verified");
     }
 
@@ -136,7 +136,7 @@ public class UserServiceTests {
         Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         testUser.setVerifiedAccount(true);
         Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), errorPassword))
-                .isInstanceOf(UserBadCredentialsException.class)
+                .isInstanceOf(EntityBadCredentialsException.class)
                 .hasMessageContaining("Couldn't login to the account with the provided password");
     }
 }

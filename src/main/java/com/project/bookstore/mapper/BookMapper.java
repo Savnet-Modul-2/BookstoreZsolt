@@ -2,12 +2,16 @@ package com.project.bookstore.mapper;
 
 import com.project.bookstore.dto.BookDto;
 import com.project.bookstore.entity.Book;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Component
 public class BookMapper {
+    @Autowired
+    private BookExemplaryMapper bookExemplaryMapper;
 
     public Book mapBookFromBookDto(BookDto bookDto) {
         Book book = new Book();
@@ -19,6 +23,10 @@ public class BookMapper {
         book.setNrOfPages(bookDto.getNrOfPages());
         book.setGenre(bookDto.getGenre());
         book.setBookLanguage(bookDto.getBookLanguage());
+        book.setBookExemplars(IntStream.range(0, bookDto.getBookExemplary().getNrOfExemplarsToCreate())
+                .mapToObj(i -> bookExemplaryMapper.mapBookExemplaryFromBookExemplaryDto(bookDto.getBookExemplary()))
+                .toList());
+        book.getBookExemplars().forEach(bookExemplary -> bookExemplary.setBook(book));
         return book;
     }
 
@@ -32,6 +40,7 @@ public class BookMapper {
         bookDto.setNrOfPages(book.getNrOfPages());
         bookDto.setGenre(book.getGenre());
         bookDto.setBookLanguage(book.getBookLanguage());
+        bookDto.setBookExemplars(bookExemplaryMapper.mapBookExemplarsDtoListFromBookExemplarsList(book.getBookExemplars()));
         return bookDto;
     }
 

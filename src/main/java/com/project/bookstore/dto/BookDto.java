@@ -1,6 +1,7 @@
 package com.project.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.bookstore.entity.BookExemplary;
 import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
@@ -16,10 +17,11 @@ public class BookDto {
     private int nrOfPages;
     private Genre genre;
     private BookLanguage bookLanguage;
-    //TODO:Removable from Mapper?
     @JsonIgnore
     private LibraryDto libraryDto;
-    private List<BookExemplaryDto> bookExemplars;
+    private BookExemplaryDto bookExemplary;
+
+    private List<BookExemplaryDto>bookExemplars;
 
     public Long getId() {
         return id;
@@ -91,5 +93,21 @@ public class BookDto {
 
     public void setLibraryDto(LibraryDto libraryDto) {
         this.libraryDto = libraryDto;
+    }
+
+    public BookExemplaryDto getBookExemplary() {
+        return bookExemplary;
+    }
+
+    public void setBookExemplary(BookExemplaryDto bookExemplary) {
+        this.bookExemplary = bookExemplary;
+    }
+
+    public List<BookExemplaryDto> getBookExemplars() {
+        return bookExemplars;
+    }
+
+    public void setBookExemplars(List<BookExemplaryDto> bookExemplars) {
+        this.bookExemplars = bookExemplars;
     }
 }

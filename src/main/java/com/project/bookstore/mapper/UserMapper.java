@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 public class UserMapper {
-    public User mapUserFromUserDto(UserDto userDto) throws NoSuchAlgorithmException {
+    public User mapUserFromUserDto(UserDto userDto) {
         User user = new User();
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
@@ -44,14 +44,10 @@ public class UserMapper {
         return userDto;
     }
 
-    //TODO: check again for NoSuchAlgorithmException
-    public List<User> mapUserListFromUserDtoList(List<UserDto> userDtoList) throws NoSuchAlgorithmException {
-        List<User> userList = new ArrayList<>();
-        for (UserDto userDto : userDtoList) {
-            userList.add(mapUserFromUserDto(userDto));
-        }
-        return userList;
-        // return userDtoList.stream().map(userDto -> mapUserFromUserDto(userDto)).toList();
+    public List<User> mapUserListFromUserDtoList(List<UserDto> userDtoList) {
+        return userDtoList.stream()
+                .map(this::mapUserFromUserDto)
+                .toList();
     }
 
     public List<UserDto> mapUserDtoListFromUserList(List<User> userList) {

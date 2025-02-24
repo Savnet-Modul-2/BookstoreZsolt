@@ -17,7 +17,6 @@ public class BookExemplaryMapper {
         bookExemplary.setId(bookExemplaryDto.getId());
         bookExemplary.setPublisher(bookExemplaryDto.getPublisher());
         bookExemplary.setMaximumReservationDuration(bookExemplaryDto.getMaximumReservationDuration());
-        bookExemplary.setBook(bookMapper.mapBookFromBookDto(bookExemplaryDto.getBook()));
         return bookExemplary;
     }
 

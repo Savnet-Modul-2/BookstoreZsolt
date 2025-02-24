@@ -14,17 +14,15 @@ public class BookExemplaryService {
     @Autowired
     private BookExemplaryRepository bookExemplaryRepository;
 
-    public List<BookExemplary> getAllBookExemplaries() {
+    public List<BookExemplary> getAllBookExemplars() {
         return bookExemplaryRepository.findAll();
     }
 
-    public Page<BookExemplary> getAllBookExemplaries(Pageable pageable) {
+    public Page<BookExemplary> getAllBookExemplars(Pageable pageable) {
         return bookExemplaryRepository.findAll(pageable);
     }
 
     public void deleteExemplaryById(Long id) {
         bookExemplaryRepository.deleteById(id);
     }
-
-
 }

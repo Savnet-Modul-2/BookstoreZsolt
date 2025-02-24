@@ -40,21 +40,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserBadCredentialsException.class)
-    public ResponseEntity<?> handleUserBadCredentialsException(UserBadCredentialsException userBadCredentialsException) {
-        ErrorDetail errorDetail = new ErrorDetail(userBadCredentialsException.getMessage());
-        return new ResponseEntity<>(errorDetail, CONFLICT);
-    }
-
-    @ExceptionHandler(UserAccountNotVerifiedException.class)
-    public ResponseEntity<?> handleUserAccountNotVerifiedException(UserAccountNotVerifiedException userAccountNotVerifiedException) {
-        ErrorDetail errorDetail = new ErrorDetail(userAccountNotVerifiedException.getMessage());
+    @ExceptionHandler(EntityBadCredentialsException.class)
+    public ResponseEntity<?> handleUserBadCredentialsException(EntityBadCredentialsException entityBadCredentialsException) {
+        ErrorDetail errorDetail = new ErrorDetail(entityBadCredentialsException.getMessage());
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 
-    @ExceptionHandler(NoSuchAlgorithmException.class)
-    public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException noSuchAlgorithmException) {
-        ErrorDetail errorDetail = new ErrorDetail(noSuchAlgorithmException.getMessage());
+    @ExceptionHandler(EntityAccountNotVerifiedException.class)
+    public ResponseEntity<?> handleUserAccountNotVerifiedException(EntityAccountNotVerifiedException entityAccountNotVerifiedException) {
+        ErrorDetail errorDetail = new ErrorDetail(entityAccountNotVerifiedException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchAlgorithmWrapperException.class)
+    public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmWrapperException noSuchAlgorithmWrapperException) {
+        ErrorDetail errorDetail = new ErrorDetail(noSuchAlgorithmWrapperException.getMessage());
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 

@@ -1,17 +1,20 @@
 package com.project.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class BookExemplaryDto {
     private Long id;
     private String publisher;
     private int maximumReservationDuration;
     private BookDto book;
-
     //TODO: on Create method have a custom Dto with a nr of exemplars to create
 
     private int nrOfExemplarsToCreate;
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }

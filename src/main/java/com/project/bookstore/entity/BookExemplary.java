@@ -2,6 +2,10 @@ package com.project.bookstore.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
 @Entity(name = "exemplary")
 @Table(name = "exemplary", schema = "public")
 public class BookExemplary {
@@ -47,5 +51,9 @@ public class BookExemplary {
 
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    public List<BookExemplary> createListWithPredefinedSize(int number) {
+        return IntStream.range(0, number).mapToObj(i -> new BookExemplary()).toList();
     }
 }
