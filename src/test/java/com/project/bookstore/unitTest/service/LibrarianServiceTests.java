@@ -61,34 +61,34 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testGetLibrarianById() {
+    public void testFindById() {
         Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
 
-        Librarian foundLibrarian = librarianService.getLibrarianById(testLibrarian.getId());
+        Librarian foundLibrarian = librarianService.findById(testLibrarian.getId());
         AssertionsForClassTypes.assertThat(foundLibrarian).isEqualTo(testLibrarian);
 
         Mockito.verify(librarianRepository, Mockito.times(1)).findById(testLibrarian.getId());
     }
 
     @Test
-    public void testGetLibrarianByIdThrowsException() {
+    public void testFindByIdThrowsException() {
         Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> librarianService.getLibrarianById(testLibrarian.getId()))
+        Assertions.assertThatThrownBy(() -> librarianService.findById(testLibrarian.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
         Mockito.verify(librarianRepository, Mockito.times(1)).findById(testLibrarian.getId());
     }
 
     @Test
-    public void testGetAllLibrarians() {
-        librarianService.getAllLibrarians();
+    public void testFindAll() {
+        librarianService.findAll();
 
         Mockito.verify(librarianRepository).findAll();
     }
 
     @Test
-    public void testDeleteLibrarianById() {
-        librarianService.deleteLibrarianById(testLibrarian.getId());
+    public void testDeleteById() {
+        librarianService.deleteById(testLibrarian.getId());
 
         Mockito.verify(librarianRepository).deleteById(testLibrarian.getId());
     }

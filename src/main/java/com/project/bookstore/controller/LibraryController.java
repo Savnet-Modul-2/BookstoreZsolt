@@ -54,13 +54,13 @@ public class LibraryController {
 
     @GetMapping("/{libraryId}")
     public ResponseEntity<?> getLibraryById(@PathVariable(name = "libraryId") Long libraryId) {
-        Library foundLibrary = libraryService.getLibraryById(libraryId);
+        Library foundLibrary = libraryService.findById(libraryId);
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(foundLibrary));
     }
 
     @GetMapping()
     public ResponseEntity<?> getAllLibraries() {
-        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.getAllLibraries()));
+        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.findAll()));
     }
 
     @PutMapping("/{libraryId}")
@@ -72,7 +72,7 @@ public class LibraryController {
             }
             throw new EntityValidationException(errorMap);
         }
-        Library updatedLibrary = libraryService.updateLibraryById(libraryId, libraryMapper.mapLibraryFromLibraryDto(libraryDto));
+        Library updatedLibrary = libraryService.updateLibrary(libraryId, libraryMapper.mapLibraryFromLibraryDto(libraryDto));
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(updatedLibrary));
     }
 

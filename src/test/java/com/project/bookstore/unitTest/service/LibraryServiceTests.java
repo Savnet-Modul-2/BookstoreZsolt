@@ -39,26 +39,26 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testGetLibraryById() {
+    public void testFindById() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
 
-        Library foundLibrary = libraryService.getLibraryById(testLibrary.getId());
+        Library foundLibrary = libraryService.findById(testLibrary.getId());
         AssertionsForClassTypes.assertThat(foundLibrary).isEqualTo(testLibrary);
 
         Mockito.verify(libraryRepository, Mockito.times(1)).findById(testLibrary.getId());
     }
 
     @Test
-    public void testGetLibraryByIdThrowsException() {
+    public void testFindByIdThrowsException() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> libraryService.getLibraryById(testLibrary.getId()))
+        Assertions.assertThatThrownBy(() -> libraryService.findById(testLibrary.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
-    public void testGetAllLibraries() {
-        libraryService.getAllLibraries();
+    public void testFindAll() {
+        libraryService.findAll();
 
         Mockito.verify(libraryRepository).findAll();
     }
@@ -132,7 +132,7 @@ public class LibraryServiceTests {
         newLibrary.setName("newLibraryName");
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
 
-        libraryService.updateLibraryById(testLibrary.getId(), newLibrary);
+        libraryService.updateLibrary(testLibrary.getId(), newLibrary);
         ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
         Mockito.verify(libraryRepository).save(libraryArgumentCaptor.capture());
         Library capturedLibrary = libraryArgumentCaptor.getValue();

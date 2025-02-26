@@ -72,34 +72,34 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testGetBookById() {
+    public void testFindById() {
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
 
-        Book foundBook = bookService.getBookById(testBook.getId());
+        Book foundBook = bookService.findById(testBook.getId());
 
         AssertionsForClassTypes.assertThat(foundBook).isEqualTo(testBook);
         Mockito.verify(bookRepository, Mockito.times(1)).findById(testBook.getId());
     }
 
     @Test
-    public void testGetBookByIdThrowsException() {
+    public void testFindByIdThrowsException() {
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> bookService.getBookById(testBook.getId()))
+        Assertions.assertThatThrownBy(() -> bookService.findById(testBook.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
         Mockito.verify(bookRepository, Mockito.times(1)).findById(testBook.getId());
     }
 
     @Test
     public void testFindAllBooks() {
-        bookService.getAllBooks();
+        bookService.findAll();
 
         Mockito.verify(bookRepository).findAll();
     }
 
     @Test
-    public void testDeleteBookById() {
-        bookService.deleteBookById(testBook.getId());
+    public void testDeleteById() {
+        bookService.deleteById(testBook.getId());
 
         Mockito.verify(bookRepository).deleteById(testBook.getId());
     }
@@ -112,7 +112,7 @@ public class BookServiceTests {
         newBook.setAuthor("newTestAuthor");
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
 
-        bookService.updateBookById(newBook.getId(), newBook);
+        bookService.updateBook(newBook.getId(), newBook);
         ArgumentCaptor<Book> bookArgumentCaptor = ArgumentCaptor.forClass(Book.class);
         Mockito.verify(bookRepository).save(bookArgumentCaptor.capture());
         Book capturedBook = bookArgumentCaptor.getValue();

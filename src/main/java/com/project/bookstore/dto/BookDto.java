@@ -5,6 +5,7 @@ import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class BookDto {
     private Long id;
@@ -17,6 +18,9 @@ public class BookDto {
     private BookLanguage bookLanguage;
     @JsonIgnore
     private LibraryDto libraryDto;
+    private BookExemplarDto bookExemplary;
+
+    private List<BookExemplarDto> bookExemplars;
 
     public Long getId() {
         return id;
@@ -88,5 +92,21 @@ public class BookDto {
 
     public void setLibraryDto(LibraryDto libraryDto) {
         this.libraryDto = libraryDto;
+    }
+
+    public BookExemplarDto getBookExemplary() {
+        return bookExemplary;
+    }
+
+    public void setBookExemplary(BookExemplarDto bookExemplary) {
+        this.bookExemplary = bookExemplary;
+    }
+
+    public List<BookExemplarDto> getBookExemplars() {
+        return bookExemplars;
+    }
+
+    public void setBookExemplars(List<BookExemplarDto> bookExemplars) {
+        this.bookExemplars = bookExemplars;
     }
 }

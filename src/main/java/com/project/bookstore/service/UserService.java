@@ -2,8 +2,8 @@ package com.project.bookstore.service;
 
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
-import com.project.bookstore.exceptions.UserAccountNotVerifiedException;
-import com.project.bookstore.exceptions.UserBadCredentialsException;
+import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
+import com.project.bookstore.exceptions.EntityBadCredentialsException;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.helper.PasswordEncryptor;
@@ -36,11 +36,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    public User getUserById(Long userId) {
+    public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
     }
@@ -63,15 +63,15 @@ public class UserService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
         if (!user.isVerifiedAccount()) {
-            throw new UserAccountNotVerifiedException("This account is not yet verified");
+            throw new EntityAccountNotVerifiedException("This account is not yet verified");
         }
         if (!user.getPassword().equals(PasswordEncryptor.encryptUserPasswordWithSHA256(userPassword))) {
-            throw new UserBadCredentialsException("Couldn't login to the account with the provided password");
+            throw new EntityBadCredentialsException("Couldn't login to the account with the provided password");
         }
         return user.getId();
     }
 
-    public void deleteUserById(Long userId) {
+    public void deleteById(Long userId) {
         userRepository.deleteById(userId);
     }
 }

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/books")
@@ -50,16 +49,16 @@ public class BookController {
 
     @GetMapping("/{bookId}")
     public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
-        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.getBookById(bookId)));
+        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findById(bookId)));
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize") Optional<Integer> pageSize, @RequestParam(name = "pageNumber") Optional<Integer> pageNumber) {
-        if (pageSize.isPresent() && pageNumber.isPresent()) {
-            Page<Book> pageBook = bookService.getAllBooks(PageRequest.of(pageNumber.get(), pageSize.get()));
+    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize, @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
+        if (pageSize != null && pageNumber != null) {
+            Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize));
             return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
         }
-        return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.getAllBooks()));
+        return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.findAll()));
     }
 
     @PutMapping("/{bookId}")
@@ -71,13 +70,13 @@ public class BookController {
             }
             throw new EntityValidationException(errorMap);
         }
-        Book updatedBook = bookService.updateBookById(bookId, bookMapper.mapBookFromBookDto(bookDto));
+        Book updatedBook = bookService.updateBook(bookId, bookMapper.mapBookFromBookDto(bookDto));
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(updatedBook));
     }
 
     @DeleteMapping("/{bookId}")
     public ResponseEntity<?> deleteBookById(@PathVariable(name = "bookId") Long bookId) {
-        bookService.deleteBookById(bookId);
+        bookService.deleteById(bookId);
         return ResponseEntity.noContent().build();
     }
 }
