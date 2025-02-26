@@ -36,11 +36,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    public User getUserById(Long userId) {
+    public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
     }
@@ -71,7 +71,7 @@ public class UserService {
         return user.getId();
     }
 
-    public void deleteUserById(Long userId) {
+    public void deleteById(Long userId) {
         userRepository.deleteById(userId);
     }
 }

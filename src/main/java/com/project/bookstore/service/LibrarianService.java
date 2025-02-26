@@ -32,12 +32,12 @@ public class LibrarianService {
         return librarianRepository.save(librarian);
     }
 
-    public Librarian getLibrarianById(Long id) {
+    public Librarian findById(Long id) {
         return librarianRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Librarian with id %s not found".formatted(id)));
     }
 
-    public List<Librarian> getAllLibrarians() {
+    public List<Librarian> findAll() {
         return librarianRepository.findAll();
     }
 
@@ -55,7 +55,7 @@ public class LibrarianService {
         return librarianRepository.save(librarian);
     }
 
-    public void deleteLibrarianById(Long id) {
+    public void deleteById(Long id) {
         librarianRepository.deleteById(id);
     }
 }

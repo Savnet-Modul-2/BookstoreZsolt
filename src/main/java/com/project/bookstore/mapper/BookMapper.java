@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 @Component
 public class BookMapper {
     @Autowired
-    private BookExemplaryMapper bookExemplaryMapper;
+    private BookExemplarMapper bookExemplarMapper;
 
     public Book mapBookFromBookDto(BookDto bookDto) {
         Book book = new Book();
@@ -23,10 +23,12 @@ public class BookMapper {
         book.setNrOfPages(bookDto.getNrOfPages());
         book.setGenre(bookDto.getGenre());
         book.setBookLanguage(bookDto.getBookLanguage());
-        book.setBookExemplars(IntStream.range(0, bookDto.getBookExemplary().getNrOfExemplarsToCreate())
-                .mapToObj(i -> bookExemplaryMapper.mapBookExemplaryFromBookExemplaryDto(bookDto.getBookExemplary()))
-                .toList());
-        book.getBookExemplars().forEach(bookExemplary -> bookExemplary.setBook(book));
+        if (bookDto.getBookExemplary() != null) {
+            book.setBookExemplars(IntStream.range(0, bookDto.getBookExemplary().getNrOfExemplarsToCreate())
+                    .mapToObj(i -> bookExemplarMapper.mapBookExemplaryFromBookExemplaryDto(bookDto.getBookExemplary()))
+                    .toList());
+            book.getBookExemplars().forEach(bookExemplary -> bookExemplary.setBook(book));
+        }
         return book;
     }
 
@@ -40,7 +42,7 @@ public class BookMapper {
         bookDto.setNrOfPages(book.getNrOfPages());
         bookDto.setGenre(book.getGenre());
         bookDto.setBookLanguage(book.getBookLanguage());
-        bookDto.setBookExemplars(bookExemplaryMapper.mapBookExemplarsDtoListFromBookExemplarsList(book.getBookExemplars()));
+        bookDto.setBookExemplars(bookExemplarMapper.mapBookExemplarsDtoListFromBookExemplarsList(book.getBookExemplars()));
         return bookDto;
     }
 

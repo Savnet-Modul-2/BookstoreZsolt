@@ -7,10 +7,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Entity(name = "book")
 @Table(name = "book", schema = "public")
@@ -40,7 +37,7 @@ public class Book {
             fetch = FetchType.LAZY,
             orphanRemoval = true,
             mappedBy = "book")
-    private List<BookExemplary> bookExemplars = new ArrayList<>();
+    private List<BookExemplar> bookExemplars = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -114,11 +111,12 @@ public class Book {
         this.library = library;
     }
 
-    public List<BookExemplary> getBookExemplars() {
+    public List<BookExemplar> getBookExemplars() {
         return bookExemplars;
     }
 
-    public void setBookExemplars(List<BookExemplary> bookExemplars) {
+    public void setBookExemplars(List<BookExemplar> bookExemplars) {
         this.bookExemplars = bookExemplars;
+        bookExemplars.forEach(bookExemplar -> bookExemplar.setBook(this));
     }
 }

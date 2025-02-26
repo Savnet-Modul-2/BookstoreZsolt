@@ -28,12 +28,12 @@ public class LibraryService {
         return libraryRepository.save(library);
     }
 
-    public Library getLibraryById(Long id) {
+    public Library findById(Long id) {
         return libraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(id)));
     }
 
-    public List<Library> getAllLibraries() {
+    public List<Library> findAll() {
         return libraryRepository.findAll();
     }
 
@@ -49,7 +49,7 @@ public class LibraryService {
         return libraryRepository.save(foundLibrary);
     }
 
-    public Library updateLibraryById(Long libraryId, Library library) {
+    public Library updateLibrary(Long libraryId, Library library) {
         Library foundLibrary = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         foundLibrary.setCity(library.getCity());

@@ -63,30 +63,30 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testGetAllUsers() {
-        userService.getAllUsers();
+    public void testFindAll() {
+        userService.findAll();
         Mockito.verify(userRepository).findAll();
     }
 
     @Test
-    public void testGetUserById() {
+    public void testFindById() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        User foundUser = userService.getUserById(testUser.getId());
+        User foundUser = userService.findById(testUser.getId());
         AssertionsForClassTypes.assertThat(foundUser).isEqualTo(testUser);
         Mockito.verify(userRepository, Mockito.times(1)).findById(testUser.getId());
     }
 
     @Test
-    public void testGetUserByIdThrowsException() {
+    public void testFindByIdThrowsException() {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> userService.getUserById(testUser.getId()))
+        Assertions.assertThatThrownBy(() -> userService.findById(testUser.getId()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User with id %s not found".formatted(testUser.getId()));
     }
 
     @Test
-    public void testDeleteUserById() {
-        userService.deleteUserById(testUser.getId());
+    public void testDeleteById() {
+        userService.deleteById(testUser.getId());
         Mockito.verify(userRepository).deleteById(testUser.getId());
     }
 

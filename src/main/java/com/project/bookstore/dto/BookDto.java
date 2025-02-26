@@ -1,7 +1,6 @@
 package com.project.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.bookstore.entity.BookExemplary;
 import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
@@ -19,9 +18,9 @@ public class BookDto {
     private BookLanguage bookLanguage;
     @JsonIgnore
     private LibraryDto libraryDto;
-    private BookExemplaryDto bookExemplary;
+    private BookExemplarDto bookExemplary;
 
-    private List<BookExemplaryDto>bookExemplars;
+    private List<BookExemplarDto> bookExemplars;
 
     public Long getId() {
         return id;
@@ -95,19 +94,19 @@ public class BookDto {
         this.libraryDto = libraryDto;
     }
 
-    public BookExemplaryDto getBookExemplary() {
+    public BookExemplarDto getBookExemplary() {
         return bookExemplary;
     }
 
-    public void setBookExemplary(BookExemplaryDto bookExemplary) {
+    public void setBookExemplary(BookExemplarDto bookExemplary) {
         this.bookExemplary = bookExemplary;
     }
 
-    public List<BookExemplaryDto> getBookExemplars() {
+    public List<BookExemplarDto> getBookExemplars() {
         return bookExemplars;
     }
 
-    public void setBookExemplars(List<BookExemplaryDto> bookExemplars) {
+    public void setBookExemplars(List<BookExemplarDto> bookExemplars) {
         this.bookExemplars = bookExemplars;
     }
 }

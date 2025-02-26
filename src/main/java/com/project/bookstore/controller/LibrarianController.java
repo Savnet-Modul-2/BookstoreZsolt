@@ -50,13 +50,13 @@ public class LibrarianController {
 
     @GetMapping("/{librarianId}")
     public ResponseEntity<?> getLibrarianById(@PathVariable(name = "librarianId") Long librarianId) {
-        Librarian foundLibrarian = librarianService.getLibrarianById(librarianId);
+        Librarian foundLibrarian = librarianService.findById(librarianId);
         return ResponseEntity.ok(librarianMapper.mapLibrarianDtoFromLibrarian(foundLibrarian));
     }
 
     @GetMapping
     public ResponseEntity<?> getAllLibrarians() {
-        return ResponseEntity.ok(librarianMapper.mapLibrarianDtoListFromLibrarianList(librarianService.getAllLibrarians()));
+        return ResponseEntity.ok(librarianMapper.mapLibrarianDtoListFromLibrarianList(librarianService.findAll()));
     }
 
     @PutMapping("/{librarianId}")
@@ -69,8 +69,7 @@ public class LibrarianController {
 
     @DeleteMapping("/{librarianId}")
     public ResponseEntity<?> deleteLibrarianById(@PathVariable(name = "librarianId") Long librarianId) {
-        librarianService.deleteLibrarianById(librarianId);
+        librarianService.deleteById(librarianId);
         return ResponseEntity.noContent().build();
     }
-
 }

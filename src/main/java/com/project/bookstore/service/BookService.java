@@ -31,20 +31,20 @@ public class BookService {
         return libraryRepository.save(foundLibrary);
     }
 
-    public Book getBookById(Long id) {
+    public Book findById(Long id) {
         return bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
     }
 
-    public List<Book> getAllBooks() {
+    public List<Book> findAll() {
         return bookRepository.findAll();
     }
 
-    public Page<Book> getAllBooks(Pageable pageable) {
+    public Page<Book> findAll(Pageable pageable) {
         return bookRepository.findAll(pageable);
     }
 
-    public Book updateBookById(Long id, Book book) {
+    public Book updateBook(Long id, Book book) {
         Book foundBook = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
         foundBook.setBookLanguage(book.getBookLanguage());
@@ -57,7 +57,7 @@ public class BookService {
         return bookRepository.save(foundBook);
     }
 
-    public void deleteBookById(Long id) {
+    public void deleteById(Long id) {
         bookRepository.deleteById(id);
     }
 }

@@ -53,13 +53,13 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> findAllUsers() {
-        List<User> allUserList = userService.getAllUsers();
+        List<User> allUserList = userService.findAll();
         return ResponseEntity.ok(userMapper.mapUserDtoListFromUserList(allUserList));
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findUserById(@PathVariable(name = "userId") Long userId) {
-        User foundUser = userService.getUserById(userId);
+        User foundUser = userService.findById(userId);
         return ResponseEntity.ok(userMapper.mapUserDtoFromUser(foundUser));
     }
 
@@ -79,7 +79,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUserById(@PathVariable(name = "userId") Long userId) {
-        userService.deleteUserById(userId);
+        userService.deleteById(userId);
         return ResponseEntity.noContent().build();
     }
 }
