@@ -47,13 +47,9 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(createdBook));
     }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
-        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findById(bookId)));
-    }
-
     @GetMapping
-    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize, @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
+    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize,
+                                         @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
         if (pageSize != null && pageNumber != null) {
             Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize));
             return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
@@ -61,8 +57,25 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.findAll()));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam(name = "title", required = false) String bookTitle,
+                                    @RequestParam(name = "author", required = false) String bookAuthor,
+                                    @RequestParam(name = "pageSize") Integer pageSize,
+                                    @RequestParam(name = "pageNumber") Integer pageNumber) {
+        if (pageSize == null || pageNumber == null) {
+            throw new RuntimeException();
+        }
+        return ResponseEntity.ok(bookService.findBooks(bookTitle,bookAuthor));
+    }
+
+    @GetMapping("/{bookId}")
+    public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
+        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findById(bookId)));
+    }
+
     @PutMapping("/{bookId}")
-    public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId, @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId,
+                                            @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
