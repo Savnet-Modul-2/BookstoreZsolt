@@ -4,14 +4,9 @@ import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
 import java.time.LocalDate;
-import java.util.List;
 
-public class BookDto {
-    /*TODO:clean-up DTOs to not show children
-     * if DTO is parent entity, dont show children
-     * if DTO is child entity, show parent
-     *
-     * */
+
+public class BookWithExemplarsDto {
     private Long id;
     private String isbn;
     private String title;
@@ -20,6 +15,7 @@ public class BookDto {
     private int nrOfPages;
     private Genre genre;
     private BookLanguage bookLanguage;
+    private BookExemplarsToCreateDto bookExemplar;
 
     public Long getId() {
         return id;
@@ -83,5 +79,13 @@ public class BookDto {
 
     public void setBookLanguage(BookLanguage bookLanguage) {
         this.bookLanguage = bookLanguage;
+    }
+
+    public BookExemplarsToCreateDto getBookExemplar() {
+        return bookExemplar;
+    }
+
+    public void setBookExemplary(BookExemplarsToCreateDto bookExemplar) {
+        this.bookExemplar = bookExemplar;
     }
 }

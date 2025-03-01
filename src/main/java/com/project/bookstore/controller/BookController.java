@@ -1,6 +1,8 @@
 package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.BookDto;
+import com.project.bookstore.dto.BookWithExemplarsMapper;
+import com.project.bookstore.dto.BookWithExemplarsDto;
 import com.project.bookstore.entity.Book;
 import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.mapper.BookMapper;
@@ -27,15 +29,17 @@ public class BookController {
     @Autowired
     private BookMapper bookMapper;
     @Autowired
+    private BookWithExemplarsMapper bookWithExemplarsMapper;
+    @Autowired
     private BookValidator bookValidator;
 
-    @InitBinder("bookDto")
+    @InitBinder({"bookDto","bookWithExemplarsDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(bookValidator);
     }
 
     @PostMapping
-    public ResponseEntity<?> createBook(@Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+    public ResponseEntity<?> createBook(@Valid @RequestBody BookWithExemplarsDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -43,7 +47,7 @@ public class BookController {
             }
             throw new EntityValidationException(errorMap);
         }
-        Book createdBook = bookService.createBook(bookMapper.mapBookFromBookDto(bookDto));
+        Book createdBook = bookService.createBook(bookWithExemplarsMapper.mapBookFromBookDto(bookDto));
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(createdBook));
     }
 
@@ -58,14 +62,15 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam(name = "title", required = false) String bookTitle,
-                                    @RequestParam(name = "author", required = false) String bookAuthor,
-                                    @RequestParam(name = "pageSize") Integer pageSize,
-                                    @RequestParam(name = "pageNumber") Integer pageNumber) {
+    public ResponseEntity<?> searchBook(@RequestParam(name = "title", required = false) String bookTitle,
+                                        @RequestParam(name = "author", required = false) String bookAuthor,
+                                        @RequestParam(name = "pageSize") Integer pageSize,
+                                        @RequestParam(name = "pageNumber") Integer pageNumber) {
         if (pageSize == null || pageNumber == null) {
-            throw new RuntimeException();
+            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
         }
-        return ResponseEntity.ok(bookService.findBooks(bookTitle,bookAuthor));
+        Page<Book> pageBook = bookService.findBooks(bookTitle, bookAuthor, PageRequest.of(pageNumber, pageSize));
+        return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
     }
 
     @GetMapping("/{bookId}")

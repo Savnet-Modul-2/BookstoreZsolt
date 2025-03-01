@@ -2,6 +2,7 @@ package com.project.bookstore.controller;
 
 
 import com.project.bookstore.dto.BookExemplarDto;
+import com.project.bookstore.dto.BookExemplarsToCreateDto;
 import com.project.bookstore.entity.BookExemplar;
 import com.project.bookstore.mapper.BookExemplarMapper;
 import com.project.bookstore.service.BookExemplarService;
@@ -23,7 +24,7 @@ public class BookExemplarController {
     private BookExemplarMapper bookExemplarMapper;
 
     @PostMapping("/{bookId}")
-    public ResponseEntity<?> addBookExemplar(@PathVariable(name = "bookId") Long bookId, @RequestBody BookExemplarDto bookExemplarDto) {
+    public ResponseEntity<?> addBookExemplar(@PathVariable(name = "bookId") Long bookId, @RequestBody BookExemplarsToCreateDto bookExemplarDto) {
         List<BookExemplar> bookExemplars = bookExemplarMapper.mapAndCreateBookExemplarsFromBookExemplarsDto(bookExemplarDto);
         return ResponseEntity.ok(bookExemplarMapper.mapBookExemplarsDtoListFromBookExemplarsList(bookExemplarService.createBookExemplars(bookId, bookExemplars)));
     }
@@ -32,7 +33,7 @@ public class BookExemplarController {
     public ResponseEntity<?> getAllBookExemplars(@RequestParam(name = "pageSize", required = false) Integer pageSize, @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
         if (pageSize != null && pageNumber != null) {
             Page<BookExemplar> pageBookExemplary = bookExemplarService.findAll(PageRequest.of(pageNumber, pageSize));
-            return ResponseEntity.ok(pageBookExemplary.map(bookExemplary -> bookExemplarMapper.mapBookExemplaryDtoFromBookExemplary(bookExemplary)));
+            return ResponseEntity.ok(pageBookExemplary.map(bookExemplary -> bookExemplarMapper.mapBookExemplarDtoFromBookExemplar(bookExemplary)));
         }
         return ResponseEntity.ok(bookExemplarMapper.mapBookExemplarsDtoListFromBookExemplarsList(bookExemplarService.findAll()));
     }
@@ -40,7 +41,7 @@ public class BookExemplarController {
     @GetMapping("/{bookId}")
     public ResponseEntity<?> getBookExemplarsFromABookPaginated(@PathVariable(name = "bookId") Long bookId, @RequestParam(name = "pageSize") Integer pageSize, @RequestParam(name = "pageNumber") Integer pageNumber) {
         Page<BookExemplar> pageBookExemplar = bookExemplarService.findAll(bookId, PageRequest.of(pageNumber, pageSize));
-        return ResponseEntity.ok(pageBookExemplar.map(bookExemplar -> bookExemplarMapper.mapBookExemplaryDtoFromBookExemplary(bookExemplar)));
+        return ResponseEntity.ok(pageBookExemplar.map(bookExemplar -> bookExemplarMapper.mapBookExemplarDtoFromBookExemplar(bookExemplar)));
     }
 
     @DeleteMapping("/{exemplarId}")

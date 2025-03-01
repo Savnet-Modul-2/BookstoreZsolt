@@ -54,7 +54,7 @@ public class BookExemplar {
 
     public void setBook(Book book) {
         this.book = book;
-        book.getBookExemplars().add(this);
+        //book.getBookExemplars().add(this);
     }
 
     public List<Reservation> getReservations() {
