@@ -13,5 +13,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
                    WHERE (:author IS NULL OR book.author = :author OR book.author LIKE %:author%)
                    AND (:title IS NULL OR book.title = :title OR book.title LIKE %:title%)
             """)
-    Page<Book> findBook(String title, String author, Pageable pageable);
+    Page<Book> findBooks(String title, String author, Pageable pageable);
 }

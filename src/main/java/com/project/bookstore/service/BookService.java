@@ -62,6 +62,6 @@ public class BookService {
     }
 
     public Page<Book> findBooks(String title, String author, Pageable pageable) {
-        return bookRepository.findBook(title, author, pageable);
+        return bookRepository.findBooks(title, author, pageable);
     }
 }

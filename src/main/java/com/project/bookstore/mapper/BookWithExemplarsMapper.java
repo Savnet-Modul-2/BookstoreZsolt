@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
@@ -27,13 +26,15 @@ public class BookWithExemplarsMapper {
         if (bookDto.getBookExemplar() != null) {
             book.setBookExemplars(IntStream.range(0, bookDto.getBookExemplar().getNrOfExemplarsToCreate())
                     .mapToObj(i -> bookExemplarMapper.mapBookExemplarFromBookExemplarDto(bookDto.getBookExemplar()))
-                    .collect(Collectors.toList()));
+                    .toList());
             book.getBookExemplars().forEach(bookExemplary -> bookExemplary.setBook(book));
         }
         return book;
     }
 
     public List<Book> mapBookListFromBookDtoList(List<BookWithExemplarsDto> bookDtoList) {
-        return bookDtoList.stream().map(this::mapBookFromBookDto).toList();
+        return bookDtoList.stream()
+                .map(this::mapBookFromBookDto)
+                .toList();
     }
 }

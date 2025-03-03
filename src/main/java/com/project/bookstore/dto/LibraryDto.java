@@ -1,7 +1,7 @@
 package com.project.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+//TODO: resolve LibraryDto to show parent(LibrarianDto)
 public class LibraryDto {
     private Long id;
     private String name;

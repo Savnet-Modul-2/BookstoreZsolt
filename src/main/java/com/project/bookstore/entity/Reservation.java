@@ -18,11 +18,11 @@ public class Reservation {
     private LocalDate endDate;
     @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     private User reservedUser;
     @ManyToOne(
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     private BookExemplar reservedExemplar;
 

@@ -2,8 +2,8 @@ package com.project.bookstore.dto;
 
 public class BookExemplarsToCreateDto {
     private int nrOfExemplarsToCreate;
-    private String publisher;
     private int maximumReservationDuration;
+    private String publisher;
 
     public String getPublisher() {
         return publisher;

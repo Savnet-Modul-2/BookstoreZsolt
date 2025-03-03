@@ -63,8 +63,8 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchBook(@RequestParam(name = "title", required = false) String bookTitle,
-                                        @RequestParam(name = "author", required = false) String bookAuthor,
+    public ResponseEntity<?> searchBook(@RequestParam(name = "title") String bookTitle,
+                                        @RequestParam(name = "author") String bookAuthor,
                                         @RequestParam(name = "pageSize") Integer pageSize,
                                         @RequestParam(name = "pageNumber") Integer pageNumber) {
         if (pageSize == null || pageNumber == null) {

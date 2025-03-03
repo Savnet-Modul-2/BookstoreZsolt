@@ -5,6 +5,7 @@ import com.project.bookstore.entity.types.Genre;
 
 import java.time.LocalDate;
 
+//TODO: resolve to show library in BookDto (mayhaps create new LibraryDto variant like for BookDto)
 public class BookDto {
     private Long id;
     private String isbn;

@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,11 +140,11 @@ public class BookServiceTests {
     @Test
     public void testFindBooksByTitleAndAuthor() {
         Pageable testPage = PageRequest.of(0, testBookList.size());
-        Mockito.when(bookRepository.findBook(testBook.getTitle(), testBook.getAuthor(), testPage))
+        Mockito.when(bookRepository.findBooks(testBook.getTitle(), testBook.getAuthor(), testPage))
                 .thenReturn(new PageImpl<>(testBookList, testPage, testBookList.size()));
 
         bookService.findBooks(testBook.getTitle(), testBook.getAuthor(), testPage);
 
-        Mockito.verify(bookRepository).findBook(testBook.getTitle(), testBook.getAuthor(), testPage);
+        Mockito.verify(bookRepository).findBooks(testBook.getTitle(), testBook.getAuthor(), testPage);
     }
 }

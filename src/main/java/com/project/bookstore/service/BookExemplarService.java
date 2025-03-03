@@ -44,7 +44,8 @@ public class BookExemplarService {
     }
 
     public Page<BookExemplar> findAll(Long id, Pageable pageable) {
-        Book foundBook = bookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
+        Book foundBook = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), foundBook.getBookExemplars().size());
         return new PageImpl<>(foundBook.getBookExemplars().subList(start, end), pageable, foundBook.getBookExemplars().size());
