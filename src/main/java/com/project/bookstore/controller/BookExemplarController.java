@@ -40,12 +40,6 @@ public class BookExemplarController {
     @InitBinder({"bookExemplarsToCreateDto", "bookExemplarsDto", "reservationDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(bookExemplarValidator, reservationValidator);
-/*        if (webDataBinder.getTarget() == null) return;
-        final List<Validator> validators = List.of(new BookExemplarValidator(), new ReservationValidator());
-        for (Validator validator : validators) {
-            if (validator.supports(webDataBinder.getClass().getClass()))
-                webDataBinder.addValidators(validator);
-        }*/
     }
 
     @PostMapping("/{bookId}")

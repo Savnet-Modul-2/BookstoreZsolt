@@ -90,7 +90,7 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBookWhenExemplarNotAvailableThrowsException(){
+    public void testReserveBookWhenExemplarNotAvailableThrowsException() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.empty());

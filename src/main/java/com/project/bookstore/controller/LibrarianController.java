@@ -31,7 +31,7 @@ public class LibrarianController {
     @Autowired
     private LibraryValidator libraryValidator;
 
-    @InitBinder({"librarianDto","libraryDto"})
+    @InitBinder({"librarianDto", "libraryDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(librarianValidator);
     }

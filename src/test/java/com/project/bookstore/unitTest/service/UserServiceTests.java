@@ -124,7 +124,7 @@ public class UserServiceTests {
     //TODO: Check to make this test run
     @Test
     @Disabled
-    public void testGetUserIdAfterLogin(){
+    public void testGetUserIdAfterLogin() {
         Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         testUser.setVerifiedAccount(true);
 
