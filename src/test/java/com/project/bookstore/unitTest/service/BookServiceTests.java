@@ -16,7 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +33,7 @@ public class BookServiceTests {
     @InjectMocks
     private BookService bookService;
     private Book testBook;
+    private List<Book> testBookList;
 
     @BeforeEach
     public void setUp() {
@@ -35,6 +41,7 @@ public class BookServiceTests {
         testBook.setId(1L);
         testBook.setTitle("testTitle");
         testBook.setAuthor("testAuthor");
+        testBookList = List.of(testBook);
     }
 
     @Test
@@ -118,5 +125,27 @@ public class BookServiceTests {
         Book capturedBook = bookArgumentCaptor.getValue();
 
         AssertionsForClassTypes.assertThat(capturedBook).isEqualTo(testBook);
+    }
+
+    @Test
+    public void testFindAllBooksPaginated() {
+        Pageable testPage = PageRequest.of(0, testBookList.size());
+        Mockito.when(bookRepository.findAll(testPage))
+                .thenReturn(new PageImpl<>(testBookList, testPage, testBookList.size()));
+
+        bookService.findAll(testPage);
+
+        Mockito.verify(bookRepository).findAll(testPage);
+    }
+
+    @Test
+    public void testFindBooksByTitleAndAuthor() {
+        Pageable testPage = PageRequest.of(0, testBookList.size());
+        Mockito.when(bookRepository.findBook(testBook.getTitle(), testBook.getAuthor(), testPage))
+                .thenReturn(new PageImpl<>(testBookList, testPage, testBookList.size()));
+
+        bookService.findBooks(testBook.getTitle(), testBook.getAuthor(), testPage);
+
+        Mockito.verify(bookRepository).findBook(testBook.getTitle(), testBook.getAuthor(), testPage);
     }
 }

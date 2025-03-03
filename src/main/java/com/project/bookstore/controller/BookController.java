@@ -1,7 +1,7 @@
 package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.BookDto;
-import com.project.bookstore.dto.BookWithExemplarsMapper;
+import com.project.bookstore.mapper.BookWithExemplarsMapper;
 import com.project.bookstore.dto.BookWithExemplarsDto;
 import com.project.bookstore.entity.Book;
 import com.project.bookstore.exceptions.EntityValidationException;
@@ -33,13 +33,14 @@ public class BookController {
     @Autowired
     private BookValidator bookValidator;
 
-    @InitBinder({"bookDto","bookWithExemplarsDto"})
+    @InitBinder({"bookDto", "bookWithExemplarsDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(bookValidator);
     }
 
     @PostMapping
-    public ResponseEntity<?> createBook(@Valid @RequestBody BookWithExemplarsDto bookDto, BindingResult bindingResult) {
+    public ResponseEntity<?> createBook(@Valid @RequestBody BookWithExemplarsDto bookDto,
+                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -80,7 +81,8 @@ public class BookController {
 
     @PutMapping("/{bookId}")
     public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId,
-                                            @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+                                            @Valid @RequestBody BookDto bookDto,
+                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {

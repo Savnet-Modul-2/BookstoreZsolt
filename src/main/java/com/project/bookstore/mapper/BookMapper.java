@@ -1,13 +1,10 @@
 package com.project.bookstore.mapper;
 
 import com.project.bookstore.dto.BookDto;
-import com.project.bookstore.dto.BookWithExemplarsDto;
 import com.project.bookstore.entity.Book;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-
 
 @Component
 public class BookMapper {

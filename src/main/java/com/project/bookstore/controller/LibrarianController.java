@@ -7,16 +7,15 @@ import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
 import com.project.bookstore.mapper.LibrarianMapper;
 import com.project.bookstore.service.LibrarianService;
 import com.project.bookstore.validator.LibrarianValidator;
+import com.project.bookstore.validator.LibraryValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,14 +28,17 @@ public class LibrarianController {
     private LibrarianMapper librarianMapper;
     @Autowired
     private LibrarianValidator librarianValidator;
+    @Autowired
+    private LibraryValidator libraryValidator;
 
-    @InitBinder("librarianDto")
+    @InitBinder({"librarianDto","libraryDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(librarianValidator);
     }
 
     @PostMapping
-    public ResponseEntity<?> createLibrarian(@Valid @RequestBody LibrarianDto librarianDto, BindingResult bindingResult) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> createLibrarian(@Valid @RequestBody LibrarianDto librarianDto,
+                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -60,11 +62,22 @@ public class LibrarianController {
     }
 
     @PutMapping("/{librarianId}")
-    public ResponseEntity<?> verifyLibrarian(@PathVariable(name = "librarianId") Long librarianId, @RequestBody Map<String, String> codeMap) throws MissingRequestValueException {
+    public ResponseEntity<?> verifyLibrarian(@PathVariable(name = "librarianId") Long librarianId,
+                                             @RequestBody Map<String, String> codeMap) {
         if (!codeMap.containsKey("verificationCode")) {
-            Librarian verifiedLibrarian = librarianService.verifyLibrarian(librarianId, codeMap.get("verificationCode"));
-            return ResponseEntity.ok(librarianMapper.mapLibrarianDtoFromLibrarian(verifiedLibrarian));
-        } else throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        Librarian verifiedLibrarian = librarianService.verifyLibrarian(librarianId, codeMap.get("verificationCode"));
+        return ResponseEntity.ok(librarianMapper.mapLibrarianDtoFromLibrarian(verifiedLibrarian));
+    }
+
+    @PutMapping("/login")
+    public ResponseEntity<?> loginIntoAccount(@RequestBody Map<String, String> loginCredentials) {
+        if (!loginCredentials.containsKey("email") || !loginCredentials.containsKey("password")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        Long id = librarianService.getLibrarianIdAfterLogin(loginCredentials.get("email"), loginCredentials.get("password"));
+        return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{librarianId}")

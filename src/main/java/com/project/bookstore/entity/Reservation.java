@@ -12,8 +12,11 @@ public class Reservation {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name = "start_date")
     private LocalDate startDate;
+    @Column(name = "end_date")
     private LocalDate endDate;
+    @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
             fetch = FetchType.LAZY)

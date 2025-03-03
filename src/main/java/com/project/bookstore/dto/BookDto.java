@@ -4,14 +4,8 @@ import com.project.bookstore.entity.types.BookLanguage;
 import com.project.bookstore.entity.types.Genre;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class BookDto {
-    /*TODO:clean-up DTOs to not show children
-     * if DTO is parent entity, dont show children
-     * if DTO is child entity, show parent
-     *
-     * */
     private Long id;
     private String isbn;
     private String title;

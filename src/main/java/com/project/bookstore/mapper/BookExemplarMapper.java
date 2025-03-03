@@ -2,7 +2,6 @@ package com.project.bookstore.mapper;
 
 import com.project.bookstore.dto.BookExemplarDto;
 import com.project.bookstore.dto.BookExemplarsToCreateDto;
-import com.project.bookstore.dto.BookWithExemplarsDto;
 import com.project.bookstore.entity.BookExemplar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

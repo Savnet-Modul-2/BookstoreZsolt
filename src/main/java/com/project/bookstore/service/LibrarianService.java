@@ -1,9 +1,13 @@
 package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
+import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
+import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
+import com.project.bookstore.exceptions.EntityBadCredentialsException;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
+import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.LibrarianRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,7 +30,7 @@ public class LibrarianService {
             throw new EntityExistsException("Librarian with the email address %s already exists".formatted(librarian.getEmail()));
         }
         String librarianVerificationCode = CodeGenerator.generateCode();
-        librarian.setVerificationCode(CodeGenerator.generateCode());
+        librarian.setVerificationCode(librarianVerificationCode);
         librarian.setVerificationCodeTime(LocalDateTime.now());
         emailService.sendEmail(new EmailDetails(librarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_STRING.formatted(librarianVerificationCode)));
         return librarianRepository.save(librarian);
@@ -53,6 +57,18 @@ public class LibrarianService {
             throw new CodeExpirationTimeException("The time for code verification has expired");
         }
         return librarianRepository.save(librarian);
+    }
+
+    public Long getLibrarianIdAfterLogin(String librarianEmail, String librarianPassword) {
+        Librarian librarian = librarianRepository.findByEmail(librarianEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(librarianEmail)));
+        if (!librarian.isVerifiedAccount()) {
+            throw new EntityAccountNotVerifiedException("This account is not yet verified");
+        }
+        if (!librarian.getPassword().equals(PasswordEncryptor.encryptUserPasswordWithSHA256(librarianPassword))) {
+            throw new EntityBadCredentialsException("Couldn't login to the account with the provided password");
+        }
+        return librarian.getId();
     }
 
     public void deleteById(Long id) {

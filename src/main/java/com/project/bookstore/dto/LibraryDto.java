@@ -2,8 +2,6 @@ package com.project.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.List;
-
 public class LibraryDto {
     private Long id;
     private String name;

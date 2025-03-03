@@ -1,7 +1,7 @@
-package com.project.bookstore.dto;
+package com.project.bookstore.mapper;
 
+import com.project.bookstore.dto.BookWithExemplarsDto;
 import com.project.bookstore.entity.Book;
-import com.project.bookstore.mapper.BookExemplarMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +36,4 @@ public class BookWithExemplarsMapper {
     public List<Book> mapBookListFromBookDtoList(List<BookWithExemplarsDto> bookDtoList) {
         return bookDtoList.stream().map(this::mapBookFromBookDto).toList();
     }
-
-
 }
