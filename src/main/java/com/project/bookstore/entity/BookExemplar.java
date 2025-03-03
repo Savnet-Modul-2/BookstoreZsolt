@@ -2,6 +2,9 @@ package com.project.bookstore.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity(name = "book_exemplar")
 @Table(name = "book_exemplar", schema = "public")
 public class BookExemplar {
@@ -16,6 +19,10 @@ public class BookExemplar {
     @ManyToOne()
     @JoinColumn(name = "book_id")
     private Book book;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            mappedBy = "reservedExemplar")
+    private List<Reservation> reservations = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -47,6 +54,13 @@ public class BookExemplar {
 
     public void setBook(Book book) {
         this.book = book;
-        book.getBookExemplars().add(this);
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
 }

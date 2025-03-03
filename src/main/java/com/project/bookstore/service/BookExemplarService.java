@@ -2,6 +2,8 @@ package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Book;
 import com.project.bookstore.entity.BookExemplar;
+import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.exceptions.BookExemplarNotAvailableException;
 import com.project.bookstore.repository.BookExemplarRepository;
 import com.project.bookstore.repository.BookRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +28,13 @@ public class BookExemplarService {
         return bookExemplarRepository.saveAll(bookExemplars);
     }
 
+    public BookExemplar findFirstBookExemplarForReservation(Long bookId, Reservation reservation) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookId)));
+        return bookExemplarRepository.findFirstExemplarAvailable(book.getId(), reservation.getStartDate(), reservation.getEndDate())
+                .orElseThrow(() -> new BookExemplarNotAvailableException("Book exemplar cannot be reserved for the given period"));
+    }
+
     public List<BookExemplar> findAll() {
         return bookExemplarRepository.findAll();
     }
@@ -35,7 +44,8 @@ public class BookExemplarService {
     }
 
     public Page<BookExemplar> findAll(Long id, Pageable pageable) {
-        Book foundBook = bookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Book with %s id not found".formatted(id)));
+        Book foundBook = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), foundBook.getBookExemplars().size());
         return new PageImpl<>(foundBook.getBookExemplars().subList(start, end), pageable, foundBook.getBookExemplars().size());

@@ -1,9 +1,9 @@
 package com.project.bookstore.unitTest.service;
 
-
 import com.project.bookstore.entity.Book;
 import com.project.bookstore.entity.BookExemplar;
-import com.project.bookstore.mapper.BookExemplarMapper;
+import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.exceptions.BookExemplarNotAvailableException;
 import com.project.bookstore.repository.BookExemplarRepository;
 import com.project.bookstore.repository.BookRepository;
 import com.project.bookstore.service.BookExemplarService;
@@ -16,13 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @ExtendWith(MockitoExtension.class)
 public class BookExemplarTests {
@@ -34,6 +36,8 @@ public class BookExemplarTests {
     private BookExemplarService bookExemplarService;
     private BookExemplar testBookExemplar;
     private List<BookExemplar> testBookExemplarsList;
+    private Book testBook;
+    private Reservation testReservation;
 
     @BeforeEach
     public void setUp() {
@@ -41,6 +45,12 @@ public class BookExemplarTests {
         testBookExemplar.setId(1L);
         testBookExemplarsList = new ArrayList<>();
         testBookExemplarsList.add(testBookExemplar);
+        testBook = new Book();
+        testBook.setId(1L);
+        testBook.getBookExemplars().add(testBookExemplar);
+        testReservation = new Reservation();
+        testReservation.setStartDate(LocalDate.parse("2025-03-03"));
+        testReservation.setEndDate(LocalDate.parse("2025-03-06"));
     }
 
     @Test
@@ -85,9 +95,61 @@ public class BookExemplarTests {
     }
 
     @Test
+    public void testFindAllBookExemplarsForABookPaginated() {
+        Pageable testPage = PageRequest.of(0, testBook.getBookExemplars().size());
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+
+        Page<BookExemplar> testBookExemplarPage = bookExemplarService.findAll(testBook.getId(), testPage);
+
+        Assertions.assertThat(testBookExemplarPage).isNotEmpty();
+    }
+
+    @Test
+    public void testFindAllBookExemplarsForABookThrowsException() {
+        Pageable testPage = PageRequest.of(0, testBook.getBookExemplars().size());
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> bookExemplarService.findAll(testBook.getId(), testPage))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Book with id %s not found".formatted(testBook.getId()));
+    }
+
+    @Test
     public void testDeleteById() {
         bookExemplarService.deleteById(testBookExemplar.getId());
 
         Mockito.verify(bookExemplarRepository).deleteById(testBookExemplar.getId());
+    }
+
+    @Test
+    public void testFindFirstBookExemplarForReservation() {
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.of(testBookExemplar));
+
+        BookExemplar foundBookExemplar = bookExemplarService.findFirstBookExemplarForReservation(testBook.getId(), testReservation);
+
+        Assertions.assertThat(foundBookExemplar).isEqualTo(testBookExemplar);
+        Mockito.verify(bookExemplarRepository, Mockito.times(1)).findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate());
+    }
+
+    @Test
+    public void testFindFirstBookExemplarForReservationOnBookIdThrowsException() {
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> bookExemplarService.findFirstBookExemplarForReservation(testBook.getId(), testReservation))
+                .isInstanceOf(EntityNotFoundException.class);
+        Mockito.verify(bookRepository, Mockito.times(1)).findById(testBook.getId());
+    }
+
+    @Test
+    public void testFindFirstBookForReservationOnBookExemplarThrowsException() {
+        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> bookExemplarService.findFirstBookExemplarForReservation(testBook.getId(), testReservation))
+                .isInstanceOf(BookExemplarNotAvailableException.class)
+                .hasMessageContaining("Book exemplar cannot be reserved for the given period");
+        Mockito.verify(bookRepository, Mockito.times(1)).findById(testBook.getId());
+        Mockito.verify(bookExemplarRepository, Mockito.times(1)).findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate());
     }
 }

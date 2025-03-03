@@ -40,7 +40,8 @@ public class LibraryController {
     }
 
     @PostMapping("/{libraryId}/addBook")
-    public ResponseEntity<?> addBookToLibrary(@PathVariable(name = "libraryId") Long libraryId, @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+    public ResponseEntity<?> addBookToLibrary(@PathVariable(name = "libraryId") Long libraryId,
+                                              @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -64,7 +65,8 @@ public class LibraryController {
     }
 
     @PutMapping("/{libraryId}")
-    public ResponseEntity<?> updateLibraryById(@PathVariable(name = "libraryId") Long libraryId, @Valid @RequestBody LibraryDto libraryDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateLibraryById(@PathVariable(name = "libraryId") Long libraryId,
+                                               @Valid @RequestBody LibraryDto libraryDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -77,7 +79,8 @@ public class LibraryController {
     }
 
     @PutMapping("/{libraryId}/{bookId}")
-    public ResponseEntity<?> addExistingBookToLibrary(@PathVariable(name = "libraryId") Long libraryId, @PathVariable(name = "bookId") Long bookId) {
+    public ResponseEntity<?> addExistingBookToLibrary(@PathVariable(name = "libraryId") Long libraryId,
+                                                      @PathVariable(name = "bookId") Long bookId) {
         Library library = libraryService.addExistingBookToLibrary(libraryId, bookId);
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(library));
     }

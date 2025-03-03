@@ -4,6 +4,8 @@ import com.project.bookstore.entity.types.Gender;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "user")
 @Table(name = "app_user", schema = "public")
@@ -34,6 +36,10 @@ public class User {
     private String verificationCode;
     @Column(name = "verificationCodeTime")
     private LocalDateTime verificationCodeTime;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            mappedBy = "reservedUser")
+    private List<Reservation> reservations = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -129,5 +135,13 @@ public class User {
 
     public void setVerificationCodeTime(LocalDateTime verificationCodeTime) {
         this.verificationCodeTime = verificationCodeTime;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
 }

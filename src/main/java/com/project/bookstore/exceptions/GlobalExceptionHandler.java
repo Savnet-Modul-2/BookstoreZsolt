@@ -70,4 +70,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException illegalArgumentException) {
+        ErrorDetail errorDetail = new ErrorDetail(illegalArgumentException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BookExemplarNotAvailableException.class)
+    public ResponseEntity<?> handleBookExemplarNotAvailableException(BookExemplarNotAvailableException bookExemplarNotAvailableException) {
+        ErrorDetail errorDetail = new ErrorDetail(bookExemplarNotAvailableException.getMessage());
+        return new ResponseEntity<>(errorDetail, NOT_FOUND);
+    }
 }

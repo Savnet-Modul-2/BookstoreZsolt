@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+//TODO: show Librarian-parent in DTO (get circular dependency)
 @Component
 public class LibraryMapper {
     @Autowired
@@ -27,7 +28,6 @@ public class LibraryMapper {
         libraryDto.setName(library.getName());
         libraryDto.setCity(library.getCity());
         libraryDto.setPhoneNumber(library.getPhoneNumber());
-        libraryDto.setBooks(library.getBooks().stream().map(bookMapper::mapBookDtoFromBook).toList());
         return libraryDto;
     }
 
