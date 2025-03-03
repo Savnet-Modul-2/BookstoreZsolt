@@ -1,9 +1,7 @@
 package com.project.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
-
+//TODO: resolve LibraryDto to show parent(LibrarianDto)
 public class LibraryDto {
     private Long id;
     private String name;
@@ -11,7 +9,6 @@ public class LibraryDto {
     private String phoneNumber;
     @JsonIgnore
     private LibrarianDto librarian;
-    private List<BookDto> books;
 
     public Long getId() {
         return id;
@@ -43,14 +40,6 @@ public class LibraryDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public List<BookDto> getBooks() {
-        return books;
-    }
-
-    public void setBooks(List<BookDto> books) {
-        this.books = books;
     }
 
     public LibrarianDto getLibrarian() {

@@ -1,18 +1,9 @@
 package com.project.bookstore.dto;
 
-public class BookExemplarDto {
-    private Long id;
-    private String publisher;
+public class BookExemplarsToCreateDto {
+    private int nrOfExemplarsToCreate;
     private int maximumReservationDuration;
-    private BookDto book;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String publisher;
 
     public String getPublisher() {
         return publisher;
@@ -30,11 +21,11 @@ public class BookExemplarDto {
         this.maximumReservationDuration = maximumReservationDuration;
     }
 
-    public BookDto getBook() {
-        return book;
+    public int getNrOfExemplarsToCreate() {
+        return nrOfExemplarsToCreate;
     }
 
-    public void setBook(BookDto book) {
-        this.book = book;
+    public void setNrOfExemplarsToCreate(int nrOfExemplarsToCreate) {
+        this.nrOfExemplarsToCreate = nrOfExemplarsToCreate;
     }
 }

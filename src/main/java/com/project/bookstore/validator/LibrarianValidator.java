@@ -1,6 +1,7 @@
 package com.project.bookstore.validator;
 
 import com.project.bookstore.dto.LibrarianDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -10,6 +11,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class LibrarianValidator implements Validator {
+    @Autowired
+    private LibraryValidator libraryValidator;
 
     private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
     private static final String PHONE_NUMBER_PATTERN = "^\\+?[0-9]{3}?[-. ]?(\\(?[0-9]{4}\\)?)?[-. ]?[0-9]{4}[-. ]?[0-9]{4}$";
@@ -35,7 +38,8 @@ public class LibrarianValidator implements Validator {
         if (librarianDto.getLibrary() == null) {
             errors.rejectValue("library", "library.null", "library cannot be null");
         } else {
-
+            libraryValidator.validate(librarianDto.getLibrary(), errors);
+/*
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "library.name", "library.name.required", "library name field is required");
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "library.city", "library.city.required", "library city field is required");
 
@@ -43,7 +47,7 @@ public class LibrarianValidator implements Validator {
                 ValidationUtils.rejectIfEmptyOrWhitespace(errors, "library.phoneNumber", "library.phoneNumber", "library phoneNumber field is required");
             } else if (!Pattern.matches(PHONE_NUMBER_PATTERN, librarianDto.getLibrary().getPhoneNumber())) {
                 errors.rejectValue("library.phoneNumber", "library.phoneNumber.invalid", "Invalid library phoneNumber format");
-            }
+            }*/
         }
     }
 }

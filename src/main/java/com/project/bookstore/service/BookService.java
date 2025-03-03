@@ -60,4 +60,8 @@ public class BookService {
     public void deleteById(Long id) {
         bookRepository.deleteById(id);
     }
+
+    public Page<Book> findBooks(String title, String author, Pageable pageable) {
+        return bookRepository.findBooks(title, author, pageable);
+    }
 }

@@ -5,8 +5,8 @@ import com.project.bookstore.entity.types.Genre;
 
 import java.time.LocalDate;
 
-//TODO: resolve to show library in BookDto (mayhaps create new LibraryDto variant like for BookDto)
-public class BookDto {
+
+public class BookWithExemplarsDto {
     private Long id;
     private String isbn;
     private String title;
@@ -15,6 +15,7 @@ public class BookDto {
     private int nrOfPages;
     private Genre genre;
     private BookLanguage bookLanguage;
+    private BookExemplarsToCreateDto bookExemplar;
 
     public Long getId() {
         return id;
@@ -78,5 +79,13 @@ public class BookDto {
 
     public void setBookLanguage(BookLanguage bookLanguage) {
         this.bookLanguage = bookLanguage;
+    }
+
+    public BookExemplarsToCreateDto getBookExemplar() {
+        return bookExemplar;
+    }
+
+    public void setBookExemplary(BookExemplarsToCreateDto bookExemplar) {
+        this.bookExemplar = bookExemplar;
     }
 }

@@ -13,7 +13,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,7 +58,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Long getUserIdAfterLogin(String userEmail, String userPassword) throws NoSuchAlgorithmException {
+    public Long getUserIdAfterLogin(String userEmail, String userPassword) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
         if (!user.isVerifiedAccount()) {

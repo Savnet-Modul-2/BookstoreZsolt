@@ -1,6 +1,8 @@
 package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.BookDto;
+import com.project.bookstore.mapper.BookWithExemplarsMapper;
+import com.project.bookstore.dto.BookWithExemplarsDto;
 import com.project.bookstore.entity.Book;
 import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.mapper.BookMapper;
@@ -27,15 +29,18 @@ public class BookController {
     @Autowired
     private BookMapper bookMapper;
     @Autowired
+    private BookWithExemplarsMapper bookWithExemplarsMapper;
+    @Autowired
     private BookValidator bookValidator;
 
-    @InitBinder("bookDto")
+    @InitBinder({"bookDto", "bookWithExemplarsDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(bookValidator);
     }
 
     @PostMapping
-    public ResponseEntity<?> createBook(@Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+    public ResponseEntity<?> createBook(@Valid @RequestBody BookWithExemplarsDto bookDto,
+                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -43,17 +48,13 @@ public class BookController {
             }
             throw new EntityValidationException(errorMap);
         }
-        Book createdBook = bookService.createBook(bookMapper.mapBookFromBookDto(bookDto));
+        Book createdBook = bookService.createBook(bookWithExemplarsMapper.mapBookFromBookDto(bookDto));
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(createdBook));
     }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
-        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findById(bookId)));
-    }
-
     @GetMapping
-    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize, @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
+    public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize,
+                                         @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
         if (pageSize != null && pageNumber != null) {
             Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize));
             return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
@@ -61,8 +62,27 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.findAll()));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBook(@RequestParam(name = "title") String bookTitle,
+                                        @RequestParam(name = "author") String bookAuthor,
+                                        @RequestParam(name = "pageSize") Integer pageSize,
+                                        @RequestParam(name = "pageNumber") Integer pageNumber) {
+        if (pageSize == null || pageNumber == null) {
+            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
+        }
+        Page<Book> pageBook = bookService.findBooks(bookTitle, bookAuthor, PageRequest.of(pageNumber, pageSize));
+        return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
+    }
+
+    @GetMapping("/{bookId}")
+    public ResponseEntity<?> getBookById(@PathVariable(name = "bookId") Long bookId) {
+        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(bookService.findById(bookId)));
+    }
+
     @PutMapping("/{bookId}")
-    public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId, @Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateBookById(@PathVariable(name = "bookId") Long bookId,
+                                            @Valid @RequestBody BookDto bookDto,
+                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {

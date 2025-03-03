@@ -16,7 +16,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userDto,
+                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -64,15 +64,20 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id, @RequestBody Map<String, String> codeMap) {
+    public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id,
+                                           @RequestBody Map<String, String> codeMap) {
         if (!codeMap.containsKey("verificationCode")) {
-            User verifiedUser = userService.verifyUserCode(id, codeMap.get("verifiableCode"));
-            return ResponseEntity.ok(userMapper.mapUserDtoFromUser(verifiedUser));
-        } else throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        User verifiedUser = userService.verifyUserCode(id, codeMap.get("verificationCode"));
+        return ResponseEntity.ok(userMapper.mapUserDtoFromUser(verifiedUser));
     }
 
     @PutMapping("/login")
-    public ResponseEntity<?> loginIntoAccount(@RequestBody Map<String, String> loginCredentials) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> loginIntoAccount(@RequestBody Map<String, String> loginCredentials) {
+        if (!loginCredentials.containsKey("email") || !loginCredentials.containsKey("password")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
         Long id = userService.getUserIdAfterLogin(loginCredentials.get("email"), loginCredentials.get("password"));
         return ResponseEntity.ok(id);
     }

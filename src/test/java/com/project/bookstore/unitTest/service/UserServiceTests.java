@@ -50,12 +50,14 @@ public class UserServiceTests {
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         Mockito.verify(userRepository).save(userArgumentCaptor.capture());
         User capturedUser = userArgumentCaptor.getValue();
+
         AssertionsForClassTypes.assertThat(capturedUser).isEqualTo(testUser);
     }
 
     @Test
     public void testUserEmailExistsThrowsException() {
         Mockito.when(userRepository.existsByEmail(testUser.getEmail())).thenReturn(true);
+
         Assertions.assertThatThrownBy(() -> userService.createUser(testUser))
                 .isInstanceOf(EntityExistsException.class)
                 .hasMessageContaining("User with the email address %s already exists".formatted(testUser.getEmail()));
@@ -65,13 +67,16 @@ public class UserServiceTests {
     @Test
     public void testFindAll() {
         userService.findAll();
+
         Mockito.verify(userRepository).findAll();
     }
 
     @Test
     public void testFindById() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
         User foundUser = userService.findById(testUser.getId());
+
         AssertionsForClassTypes.assertThat(foundUser).isEqualTo(testUser);
         Mockito.verify(userRepository, Mockito.times(1)).findById(testUser.getId());
     }
@@ -79,6 +84,7 @@ public class UserServiceTests {
     @Test
     public void testFindByIdThrowsException() {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
         Assertions.assertThatThrownBy(() -> userService.findById(testUser.getId()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User with id %s not found".formatted(testUser.getId()));
@@ -87,6 +93,7 @@ public class UserServiceTests {
     @Test
     public void testDeleteById() {
         userService.deleteById(testUser.getId());
+
         Mockito.verify(userRepository).deleteById(testUser.getId());
     }
 
@@ -94,7 +101,9 @@ public class UserServiceTests {
     @Test
     public void testVerifyUserCodeWithUserFound() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
         userService.verifyUserCode(testUser.getId(), testUser.getVerificationCode());
+
         Assertions.assertThat(testUser.getVerificationCode()).isEqualTo(null);
 
         //TODO: isEqualTo expect a LDT String, should convert somehow to null
@@ -106,6 +115,7 @@ public class UserServiceTests {
     public void testVerifyUserCodeNotEqualThrowException() {
         String errorVerificationCode = "errorVerificationCode";
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
         Assertions.assertThatThrownBy(() -> userService.verifyUserCode(testUser.getId(), errorVerificationCode))
                 .isInstanceOf(CodeExpirationTimeException.class)
                 .hasMessageContaining("The time for code verification has expired");
@@ -114,16 +124,19 @@ public class UserServiceTests {
     //TODO: Check to make this test run
     @Test
     @Disabled
-    public void testGetUserIdAfterLogin() throws NoSuchAlgorithmException {
+    public void testGetUserIdAfterLogin() {
         Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         testUser.setVerifiedAccount(true);
+
         Long testId = userService.getUserIdAfterLogin(testUser.getEmail(), testUser.getPassword());
+
         Assertions.assertThat(testId).isEqualTo(testUser.getId());
     }
 
     @Test
     public void testGetUserIdAfterLoginWhenNotVerifiedThrowException() {
         Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+
         Assertions.assertThat(testUser.isVerifiedAccount()).isFalse();
         Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), testUser.getPassword()))
                 .isInstanceOf(EntityAccountNotVerifiedException.class)
@@ -135,6 +148,7 @@ public class UserServiceTests {
         String errorPassword = "errorPassword";
         Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         testUser.setVerifiedAccount(true);
+
         Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), errorPassword))
                 .isInstanceOf(EntityBadCredentialsException.class)
                 .hasMessageContaining("Couldn't login to the account with the provided password");

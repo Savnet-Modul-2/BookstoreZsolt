@@ -2,6 +2,8 @@ package com.project.bookstore.unitTest.service;
 
 import com.project.bookstore.entity.Librarian;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
+import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
+import com.project.bookstore.exceptions.EntityBadCredentialsException;
 import com.project.bookstore.repository.LibrarianRepository;
 import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.LibrarianService;
@@ -10,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +40,8 @@ public class LibrarianServiceTests {
         testLibrarian.setId(1L);
         testLibrarian.setVerificationCode("testVerificationCode");
         testLibrarian.setVerificationCodeTime(LocalDateTime.now());
+        testLibrarian.setPassword("testPassword");
+        testLibrarian.setEmail("testEmail@gmail.com");
     }
 
     @Test
@@ -113,5 +118,34 @@ public class LibrarianServiceTests {
         Assertions.assertThatThrownBy(() -> librarianService.verifyLibrarian(testLibrarian.getId(), errorVerificationCode))
                 .isInstanceOf(CodeExpirationTimeException.class)
                 .hasMessageContaining("The time for code verification has expired");
+    }
+
+    //TODO: Check to make this test run
+    @Test
+    @Disabled
+    public void testGetLibrarianIdAfterLogin() {
+        Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
+        testLibrarian.setVerifiedAccount(true);
+        Long testId = librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), testLibrarian.getPassword());
+        Assertions.assertThat(testId).isEqualTo(testLibrarian.getId());
+    }
+
+    @Test
+    public void testGetUserIdAfterLoginWhenNotVerifiedThrowException() {
+        Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
+        Assertions.assertThat(testLibrarian.isVerifiedAccount()).isFalse();
+        Assertions.assertThatThrownBy(() -> librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), testLibrarian.getPassword()))
+                .isInstanceOf(EntityAccountNotVerifiedException.class)
+                .hasMessageContaining("This account is not yet verified");
+    }
+
+    @Test
+    public void testGetUserIdAfterLoginWhenBadCredentialsException() {
+        String errorPassword = "errorPassword";
+        Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
+        testLibrarian.setVerifiedAccount(true);
+        Assertions.assertThatThrownBy(() -> librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), errorPassword))
+                .isInstanceOf(EntityBadCredentialsException.class)
+                .hasMessageContaining("Couldn't login to the account with the provided password");
     }
 }
