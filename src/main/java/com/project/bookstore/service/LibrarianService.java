@@ -1,14 +1,14 @@
 package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
-import com.project.bookstore.entity.User;
-import com.project.bookstore.exceptions.CodeExpirationTimeException;
-import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
-import com.project.bookstore.exceptions.EntityBadCredentialsException;
+import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.entity.types.ReservationStatus;
+import com.project.bookstore.exceptions.*;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.LibrarianRepository;
+import com.project.bookstore.repository.ReservationRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,8 @@ public class LibrarianService {
     private LibrarianRepository librarianRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     public Librarian createLibrarian(Librarian librarian) {
         if (librarianRepository.existsByEmail(librarian.getEmail())) {
@@ -73,6 +75,19 @@ public class LibrarianService {
 
     public void deleteById(Long id) {
         librarianRepository.deleteById(id);
+    }
+
+    public Reservation updateReservationStatus(Long librarianId, Long reservationId, ReservationStatus reservationStatus) {
+        Reservation foundReservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation with id %s not found".formatted(reservationStatus)));
+        if (!librarianId.equals(foundReservation.getReservedExemplar().getBook().getLibrary().getLibrarian().getId())) {
+            throw new UnauthorizedLibrarianAccessException("Librarian doesn't have access to the specified book exemplar");
+        }
+        if (!foundReservation.getReservationStatus().isNextStatePossible(reservationStatus)) {
+            throw new UnavailableStatusChangeException("Cannot change reservation status");
+        }
+        foundReservation.setReservationStatus(reservationStatus);
+        return reservationRepository.save(foundReservation);
     }
 }
 

@@ -7,11 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.security.NoSuchAlgorithmException;
-
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -81,4 +77,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDetail errorDetail = new ErrorDetail(bookExemplarNotAvailableException.getMessage());
         return new ResponseEntity<>(errorDetail, NOT_FOUND);
     }
+
+    @ExceptionHandler(UnavailableStatusChangeException.class)
+    public ResponseEntity<?> handleUnavailableStatusChangeException(UnavailableStatusChangeException unavailableStatusChangeException) {
+        ErrorDetail errorDetail = new ErrorDetail(unavailableStatusChangeException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorizedLibrarianAccessException.class)
+    public ResponseEntity<?> handleUnauthorizedLibrarianAccessException(UnauthorizedLibrarianAccessException unauthorizedLibrarianAccessException) {
+        ErrorDetail errorDetail = new ErrorDetail(unauthorizedLibrarianAccessException.getMessage());
+        return new ResponseEntity<>(errorDetail, UNAUTHORIZED);
+    }
+
 }

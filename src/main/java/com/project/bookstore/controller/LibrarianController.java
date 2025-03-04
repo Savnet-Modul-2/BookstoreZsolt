@@ -2,6 +2,8 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.LibrarianDto;
 import com.project.bookstore.entity.Librarian;
+import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
 import com.project.bookstore.mapper.LibrarianMapper;
@@ -78,6 +80,17 @@ public class LibrarianController {
         }
         Long id = librarianService.getLibrarianIdAfterLogin(loginCredentials.get("email"), loginCredentials.get("password"));
         return ResponseEntity.ok(id);
+    }
+
+    @PutMapping("/{librarianId}/{reservationId}")
+    public ResponseEntity<?> updateReservationStatus(@PathVariable(name = "librarianId") Long librarianId,
+                                                     @PathVariable(name = "reservationId") Long reservationId,
+                                                     @RequestBody Map<String, String> reservationMap) {
+        if (!reservationMap.containsKey("reservationStatus")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        Reservation reservation = librarianService.updateReservationStatus(librarianId,reservationId, ReservationStatus.valueOf(reservationMap.get("reservationStatus")));
+
     }
 
     @DeleteMapping("/{librarianId}")
