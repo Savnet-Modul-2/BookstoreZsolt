@@ -82,17 +82,6 @@ public class LibrarianController {
         return ResponseEntity.ok(id);
     }
 
-    @PutMapping("/{librarianId}/{reservationId}")
-    public ResponseEntity<?> updateReservationStatus(@PathVariable(name = "librarianId") Long librarianId,
-                                                     @PathVariable(name = "reservationId") Long reservationId,
-                                                     @RequestBody Map<String, String> reservationMap) {
-        if (!reservationMap.containsKey("reservationStatus")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
-        }
-        Reservation reservation = librarianService.updateReservationStatus(librarianId,reservationId, ReservationStatus.valueOf(reservationMap.get("reservationStatus")));
-
-    }
-
     @DeleteMapping("/{librarianId}")
     public ResponseEntity<?> deleteLibrarianById(@PathVariable(name = "librarianId") Long librarianId) {
         librarianService.deleteById(librarianId);

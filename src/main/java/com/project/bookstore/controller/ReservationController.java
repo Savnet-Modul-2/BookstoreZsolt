@@ -2,7 +2,9 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.ReservationDto;
 import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.EntityValidationException;
+import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
 import com.project.bookstore.mapper.ReservationMapper;
 import com.project.bookstore.service.ReservationService;
 import com.project.bookstore.validator.ReservationValidator;
@@ -46,5 +48,21 @@ public class ReservationController {
         }
         Reservation reservation = reservationService.reserveBook(userId, bookId, reservationMapper.mapReservationFromReservationDto(reservationDto));
         return ResponseEntity.ok(reservationMapper.mapReservationDtoFromReservation(reservation));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllReservations() {
+        return ResponseEntity.ok(reservationMapper.mapReservationDtoListFromReservationList(reservationService.findAllReservations()));
+    }
+
+    @PutMapping("/{librarianId}/{reservationId}")
+    public ResponseEntity<?> updateReservationStatus(@PathVariable(name = "librarianId") Long librarianId,
+                                                     @PathVariable(name = "reservationId") Long reservationId,
+                                                     @RequestBody Map<String, String> reservationStatusMap) {
+        if (!reservationStatusMap.containsKey("reservationStatus")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        Reservation updatedReservation = reservationService.updateReservationStatus(librarianId, reservationId, ReservationStatus.valueOf(reservationStatusMap.get("reservationStatus")));
+        return ResponseEntity.ok(reservationMapper.mapReservationDtoFromReservation(updatedReservation));
     }
 }

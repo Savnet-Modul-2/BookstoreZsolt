@@ -2,7 +2,6 @@ package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
 import com.project.bookstore.entity.Reservation;
-import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.*;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
@@ -34,7 +33,7 @@ public class LibrarianService {
         String librarianVerificationCode = CodeGenerator.generateCode();
         librarian.setVerificationCode(librarianVerificationCode);
         librarian.setVerificationCodeTime(LocalDateTime.now());
-        emailService.sendEmail(new EmailDetails(librarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_STRING.formatted(librarianVerificationCode)));
+        emailService.sendEmail(new EmailDetails(librarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(librarianVerificationCode)));
         return librarianRepository.save(librarian);
     }
 
@@ -77,17 +76,16 @@ public class LibrarianService {
         librarianRepository.deleteById(id);
     }
 
-    public Reservation updateReservationStatus(Long librarianId, Long reservationId, ReservationStatus reservationStatus) {
-        Reservation foundReservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("Reservation with id %s not found".formatted(reservationStatus)));
-        if (!librarianId.equals(foundReservation.getReservedExemplar().getBook().getLibrary().getLibrarian().getId())) {
-            throw new UnauthorizedLibrarianAccessException("Librarian doesn't have access to the specified book exemplar");
-        }
-        if (!foundReservation.getReservationStatus().isNextStatePossible(reservationStatus)) {
-            throw new UnavailableStatusChangeException("Cannot change reservation status");
-        }
-        foundReservation.setReservationStatus(reservationStatus);
-        return reservationRepository.save(foundReservation);
+    public void sendDelayedReservationEmail(List<Reservation> reservationList) {
+        reservationList.forEach(reservation -> emailService.sendEmail(new EmailDetails(
+                reservation.getReservedExemplar().getBook().getLibrary().getLibrarian().getEmail(),
+                EmailDetails.BOOK_DELAYED_EMAIL_SUBJECT,
+                EmailDetails.BOOK_DELAYED_EMAIL_BODY.formatted(
+                        reservation.getReservedExemplar().getBook().getTitle(),
+                        reservation.getReservedUser().getFirstName(),
+                        reservation.getReservedUser().getEmail(),
+                        reservation.getReservedUser().getPhoneNumber())
+        )));
     }
 }
 

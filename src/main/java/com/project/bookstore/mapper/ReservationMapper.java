@@ -5,6 +5,8 @@ import com.project.bookstore.entity.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ReservationMapper {
     @Autowired
@@ -29,4 +31,17 @@ public class ReservationMapper {
         reservationDto.setReservationStatus(reservation.getReservationStatus());
         return reservationDto;
     }
+
+    public List<Reservation> mapReservationListFromReservationDtoList(List<ReservationDto> reservationDtoList) {
+        return reservationDtoList.stream()
+                .map(this::mapReservationFromReservationDto)
+                .toList();
+    }
+
+    public List<ReservationDto> mapReservationDtoListFromReservationList(List<Reservation> reservationsList) {
+        return reservationsList.stream()
+                .map(this::mapReservationDtoFromReservation)
+                .toList();
+    }
+
 }

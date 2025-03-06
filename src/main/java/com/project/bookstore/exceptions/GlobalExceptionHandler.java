@@ -90,4 +90,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, UNAUTHORIZED);
     }
 
+    @ExceptionHandler(MaximumReservationDurationExceededException.class)
+    public ResponseEntity<?> handleMaximumReservationDurationExceededException(MaximumReservationDurationExceededException maximumReservationDurationExceededException) {
+        ErrorDetail errorDetail = new ErrorDetail(maximumReservationDurationExceededException.getMessage());
+        return new ResponseEntity<>(errorDetail, BAD_REQUEST);
+    }
 }
