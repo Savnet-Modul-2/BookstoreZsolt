@@ -5,10 +5,7 @@ import com.project.bookstore.entity.BookExemplar;
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.entity.types.ReservationStatus;
-import com.project.bookstore.exceptions.BookExemplarNotAvailableException;
-import com.project.bookstore.exceptions.MaximumReservationDurationExceededException;
-import com.project.bookstore.exceptions.UnauthorizedLibrarianAccessException;
-import com.project.bookstore.exceptions.UnavailableStatusChangeException;
+import com.project.bookstore.exceptions.*;
 import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.repository.BookExemplarRepository;
 import com.project.bookstore.repository.BookRepository;
@@ -42,6 +39,9 @@ public class ReservationService {
                 .orElseThrow(() -> new BookExemplarNotAvailableException("Book exemplar cannot be reserved for the given period"));
         if (reservation.getEndDate().isAfter(reservation.getStartDate().plusDays(bookExemplar.getMaximumReservationDuration()))) {
             throw new MaximumReservationDurationExceededException("The number of days for the exemplar to be reserved has exceeded the reservable duration of days");
+        }
+        if (!foundUser.isVerifiedAccount()) {
+            throw new EntityAccountNotVerifiedException("The user's account is not verified to perform this action");
         }
         reservation.setReservationStatus(ReservationStatus.PENDING);
         reservation.setReservedUser(foundUser);

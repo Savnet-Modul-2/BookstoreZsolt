@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -59,9 +60,10 @@ public class BookExemplarController {
 
     @GetMapping
     public ResponseEntity<?> getAllBookExemplars(@RequestParam(name = "pageSize", required = false) Integer pageSize,
-                                                 @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
+                                                 @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                                 @RequestParam(name = "sortBy", required = false) String sortBy) {
         if (pageSize != null && pageNumber != null) {
-            Page<BookExemplar> pageBookExemplary = bookExemplarService.findAll(PageRequest.of(pageNumber, pageSize));
+            Page<BookExemplar> pageBookExemplary = bookExemplarService.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, sortBy)));
             return ResponseEntity.ok(pageBookExemplary.map(bookExemplary -> bookExemplarMapper.mapBookExemplarDtoFromBookExemplar(bookExemplary)));
         }
         return ResponseEntity.ok(bookExemplarMapper.mapBookExemplarsDtoListFromBookExemplarsList(bookExemplarService.findAll()));
