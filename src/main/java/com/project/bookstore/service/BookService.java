@@ -23,12 +23,11 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    //TODO:method never used in BookController
-    public Library addBookToLibrary(Long libraryId, Book book) {
+    public Book addBookToLibrary(Long libraryId, Book book) {
         Library foundLibrary = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         foundLibrary.addBook(book);
-        return libraryRepository.save(foundLibrary);
+        return bookRepository.save(book);
     }
 
     public Book findById(Long id) {

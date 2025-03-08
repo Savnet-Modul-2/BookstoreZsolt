@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
-    //TODO: implement test
     @Query(value = """
             SELECT book FROM book book
                    WHERE (:author IS NULL OR book.author = :author OR book.author LIKE %:author%)
@@ -15,3 +14,4 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             """)
     Page<Book> findBooks(String title, String author, Pageable pageable);
 }
+

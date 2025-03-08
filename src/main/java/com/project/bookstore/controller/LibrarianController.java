@@ -2,6 +2,8 @@ package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.LibrarianDto;
 import com.project.bookstore.entity.Librarian;
+import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
 import com.project.bookstore.mapper.LibrarianMapper;

@@ -23,7 +23,7 @@ public class BookExemplarService {
     private BookRepository bookRepository;
 
     public List<BookExemplar> createBookExemplars(Long id, List<BookExemplar> bookExemplars) {
-        Book foundBook = bookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Book with %s id not found".formatted(id)));
+        Book foundBook = bookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
         bookExemplars.forEach(bookExemplar -> bookExemplar.setBook(foundBook));
         return bookExemplarRepository.saveAll(bookExemplars);
     }

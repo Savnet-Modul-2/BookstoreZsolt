@@ -1,5 +1,6 @@
 package com.project.bookstore.service;
 
+import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
 import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
@@ -31,7 +32,7 @@ public class UserService {
         String userVerificationCode = CodeGenerator.generateCode();
         user.setVerificationCode(userVerificationCode);
         user.setVerificationCodeTime(LocalDateTime.now());
-        emailService.sendEmail(new EmailDetails(user.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_STRING.formatted(userVerificationCode)));
+        emailService.sendEmail(new EmailDetails(user.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(userVerificationCode)));
         return userRepository.save(user);
     }
 
@@ -72,5 +73,16 @@ public class UserService {
 
     public void deleteById(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    public void sendDelayedReservationEmail(List<Reservation> reservationList) {
+        reservationList.forEach(reservation -> emailService.sendEmail(new EmailDetails(
+                reservation.getReservedUser().getEmail(),
+                EmailDetails.RESERVATION_DELAYED_EMAIL_SUBJECT,
+                EmailDetails.RESERVATION_DELAYED_EMAIL_BODY.formatted(
+                        reservation.getReservedExemplar().getBook().getTitle(),
+                        reservation.getReservedExemplar().getBook().getLibrary().getName(),
+                        reservation.getReservedExemplar().getBook().getLibrary().getCity())
+        )));
     }
 }
