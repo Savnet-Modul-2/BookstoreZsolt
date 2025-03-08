@@ -14,7 +14,9 @@ public interface BookExemplarRepository extends JpaRepository<BookExemplar, Long
             AND bookExemplar.id NOT IN (
             SELECT reservation.reserved_exemplar_id from reservation reservation
             WHERE reservation.reserved_exemplar_id = bookExemplar.id
-            AND NOT (reservation.end_date < :userStartDate OR reservation.start_date > :userEndDate))
+            AND ((reservation.end_date >= :userStartDate AND reservation.start_date <= :userEndDate)
+            AND reservation.reservation_status IN ('IN_PROGRESS','PENDING'))
+            OR reservation.reservation_status = 'DELAYED')
             LIMIT 1
             """, nativeQuery = true)
     Optional<BookExemplar> findFirstExemplarAvailable(Long bookId, LocalDate userStartDate, LocalDate userEndDate);

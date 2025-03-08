@@ -61,11 +61,11 @@ public class BookServiceTests {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
 
         bookService.addBookToLibrary(testLibrary.getId(), testBook);
-        ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
-        Mockito.verify(libraryRepository).save(libraryArgumentCaptor.capture());
-        Library capturedLibrary = libraryArgumentCaptor.getValue();
+        ArgumentCaptor<Book> bookArgumentCaptor = ArgumentCaptor.forClass(Book.class);
+        Mockito.verify(bookRepository).save(bookArgumentCaptor.capture());
+        Book capturedBook = bookArgumentCaptor.getValue();
 
-        Assertions.assertThat(capturedLibrary.getBooks()).contains(testBook);
+        Assertions.assertThat(capturedBook).isEqualTo(testBook);
     }
 
     @Test

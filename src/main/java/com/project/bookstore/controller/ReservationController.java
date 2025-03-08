@@ -10,12 +10,15 @@ import com.project.bookstore.service.ReservationService;
 import com.project.bookstore.validator.ReservationValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +56,36 @@ public class ReservationController {
     @GetMapping
     public ResponseEntity<?> getAllReservations() {
         return ResponseEntity.ok(reservationMapper.mapReservationDtoListFromReservationList(reservationService.findAllReservations()));
+    }
+
+    @GetMapping("/library/{libraryId}")
+    public ResponseEntity<?> getAllReservationsForALibraryByTimePeriod(@PathVariable(name = "libraryId") Long libraryId,
+                                                                       @RequestParam(name = "pageSize") Integer pageSize,
+                                                                       @RequestParam(name = "pageNumber") Integer pageNumber,
+                                                                       @RequestBody Map<String, String> timePeriodMap) {
+        if (pageSize == null || pageNumber == null) {
+            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
+        }
+        if (!timePeriodMap.containsKey("startDate") || !timePeriodMap.containsKey("endDate")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(libraryId, LocalDate.parse(timePeriodMap.get("startDate")), LocalDate.parse(timePeriodMap.get("endDate")), PageRequest.of(pageNumber, pageSize));
+        return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getAllReservationsForAUserByStatus(@PathVariable(name = "userId") Long userId,
+                                                                @RequestParam(name = "pageSize") Integer pageSize,
+                                                                @RequestParam(name = "pageNumber") Integer pageNumber,
+                                                                @RequestBody Map<String, String> statusMap) {
+        if (pageSize == null || pageNumber == null) {
+            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
+        }
+        if (!statusMap.containsKey("reservationStatus")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+        }
+        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(userId, ReservationStatus.valueOf(statusMap.get("reservationStatus")), PageRequest.of(pageNumber, pageSize));
+        return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
     }
 
     @PutMapping("/{librarianId}/{reservationId}")

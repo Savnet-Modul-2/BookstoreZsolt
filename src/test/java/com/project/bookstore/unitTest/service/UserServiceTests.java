@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -97,18 +96,19 @@ public class UserServiceTests {
         Mockito.verify(userRepository).deleteById(testUser.getId());
     }
 
-    //TODO: should assert that service method return same User from test
     @Test
     public void testVerifyUserCodeWithUserFound() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         userService.verifyUserCode(testUser.getId(), testUser.getVerificationCode());
+        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+        Mockito.verify(userRepository).save(userArgumentCaptor.capture());
+        User capturedUser = userArgumentCaptor.getValue();
 
         Assertions.assertThat(testUser.getVerificationCode()).isEqualTo(null);
-
-        //TODO: isEqualTo expect a LDT String, should convert somehow to null
-        //Assertions.assertThat(testUser.getVerificationCodeTime());
+        Assertions.assertThat(testUser.getVerificationCodeTime()).isNull();
         Assertions.assertThat(testUser.isVerifiedAccount()).isEqualTo(true);
+        Assertions.assertThat(capturedUser).isEqualTo(testUser);
     }
 
     @Test
@@ -152,5 +152,10 @@ public class UserServiceTests {
         Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), errorPassword))
                 .isInstanceOf(EntityBadCredentialsException.class)
                 .hasMessageContaining("Couldn't login to the account with the provided password");
+    }
+
+    //TODO: check if sendDelayedReservationEmail can be tested
+    @Test
+    public void testSendDelayedReservationEmail() {
     }
 }

@@ -1,20 +1,18 @@
 package com.project.bookstore.service;
 
-import com.project.bookstore.entity.Book;
-import com.project.bookstore.entity.BookExemplar;
-import com.project.bookstore.entity.Reservation;
-import com.project.bookstore.entity.User;
+import com.project.bookstore.entity.*;
 import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.*;
 import com.project.bookstore.helper.EmailDetails;
-import com.project.bookstore.repository.BookExemplarRepository;
-import com.project.bookstore.repository.BookRepository;
-import com.project.bookstore.repository.ReservationRepository;
-import com.project.bookstore.repository.UserRepository;
+import com.project.bookstore.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -29,6 +27,8 @@ public class ReservationService {
     private UserRepository userRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private LibraryRepository libraryRepository;
 
     public Reservation reserveBook(Long userId, Long bookId, Reservation reservation) {
         User foundUser = userRepository.findById(userId)
@@ -37,7 +37,7 @@ public class ReservationService {
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookId)));
         BookExemplar bookExemplar = bookExemplarRepository.findFirstExemplarAvailable(foundBook.getId(), reservation.getStartDate(), reservation.getEndDate())
                 .orElseThrow(() -> new BookExemplarNotAvailableException("Book exemplar cannot be reserved for the given period"));
-        if (reservation.getEndDate().isAfter(reservation.getStartDate().plusDays(bookExemplar.getMaximumReservationDuration()))) {
+        if (reservation.getEndDate().isBefore(reservation.getStartDate().plusDays(bookExemplar.getMaximumReservationDuration()))) {
             throw new MaximumReservationDurationExceededException("The number of days for the exemplar to be reserved has exceeded the reservable duration of days");
         }
         if (!foundUser.isVerifiedAccount()) {
@@ -50,9 +50,28 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    public Page<Reservation> findReservationsForALibraryByTimePeriod(Long libraryId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Library foundLibrary = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Time period unavailable to be shown");
+        }
+        return reservationRepository.searchReservationsForALibraryByTimePeriod(foundLibrary.getId(), startDate, endDate, pageable);
+    }
+
+    public Page<Reservation> findReservationsForAUserByStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
+        return reservationRepository.searchReservationsForAUserByReservationStatus(foundUser.getId(), reservationStatus, pageable);
+    }
+
+    public List<Reservation> findAllReservations() {
+        return reservationRepository.findAll();
+    }
+
     public Reservation updateReservationStatus(Long librarianId, Long reservationId, ReservationStatus reservationStatus) {
         Reservation foundReservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("Reservation with id %s not found".formatted(reservationStatus)));
+                .orElseThrow(() -> new EntityNotFoundException("Reservation with id %s not found".formatted(reservationId)));
         if (!librarianId.equals(foundReservation.getReservedExemplar().getBook().getLibrary().getLibrarian().getId())) {
             throw new UnauthorizedLibrarianAccessException("Librarian doesn't have access to the specified book exemplar");
         }
@@ -61,9 +80,5 @@ public class ReservationService {
         }
         foundReservation.setReservationStatus(reservationStatus);
         return reservationRepository.save(foundReservation);
-    }
-
-    public List<Reservation> findAllReservations() {
-        return reservationRepository.findAll();
     }
 }
