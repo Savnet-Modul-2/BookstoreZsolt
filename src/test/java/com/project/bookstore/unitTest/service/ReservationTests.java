@@ -156,7 +156,7 @@ public class ReservationTests {
         Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), testPage);
 
         Assertions.assertThat(reservationPage).contains(testReservation);
-        Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), testPage);
+        Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), testPage);
     }
 
     @Test
@@ -176,8 +176,8 @@ public class ReservationTests {
 
         Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), PageRequest.of(0, 1)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Time period unavailable to be shown");
-        Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), PageRequest.of(0, 1));
+                .hasMessageContaining("startDate can't be after endDate");
+        Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), PageRequest.of(0, 1));
     }
 
     @Test
@@ -252,7 +252,7 @@ public class ReservationTests {
         Mockito.when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
 
         Assertions.assertThatThrownBy(() -> reservationService.updateReservationStatus(librarianId, testReservation.getId(), ReservationStatus.FINISHED))
-                .isInstanceOf(UnavailableStatusChangeException.class)
+                .isInstanceOf(InvalidStatusChangeException.class)
                 .hasMessageContaining("Cannot change reservation status");
 
     }

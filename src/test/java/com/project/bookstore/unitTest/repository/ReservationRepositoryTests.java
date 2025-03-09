@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
@@ -57,67 +58,67 @@ public class ReservationRepositoryTests {
     }
 
     @Test
-    public void testSearchByExpiredPendingReservations() {
+    public void testFindByStartDateOlderThanAndStatus() {
         testReservation.setReservationStatus(ReservationStatus.PENDING);
         testReservation.setStartDate(LocalDate.now());
         reservationRepository.save(testReservation);
 
-        boolean expected = reservationRepository.searchExpiredPendingReservations(LocalDate.now().plusDays(1), ReservationStatus.PENDING).isEmpty();
+        boolean expected = reservationRepository.findByStartDateOlderThanAndStatus(LocalDate.now().plusDays(1), ReservationStatus.PENDING).isEmpty();
 
         Assertions.assertThat(expected).isFalse();
     }
 
     @Test
-    public void testSearchByExpiredPendingReservationsWithBeforeStartDateReturnsEmpty() {
+    public void testFindByStartDateOlderThanAndStatusWithBeforeStartDateReturnsEmpty() {
         testReservation.setReservationStatus(ReservationStatus.PENDING);
         testReservation.setStartDate(LocalDate.now());
         reservationRepository.save(testReservation);
 
-        boolean expected = reservationRepository.searchExpiredPendingReservations(LocalDate.now().minusDays(1), ReservationStatus.PENDING).isEmpty();
+        boolean expected = reservationRepository.findByStartDateOlderThanAndStatus(LocalDate.now().minusDays(1), ReservationStatus.PENDING).isEmpty();
 
         Assertions.assertThat(expected).isTrue();
     }
 
     @Test
-    public void testSearchByExpiredPendingReservationsWithDifferentStatusReturnsEmpty() {
+    public void testFindByStartDateOlderThanAndStatusWithDifferentStatusReturnsEmpty() {
         testReservation.setReservationStatus(ReservationStatus.CANCELLED);
         testReservation.setStartDate(LocalDate.now());
         reservationRepository.save(testReservation);
 
-        boolean expected = reservationRepository.searchExpiredPendingReservations(LocalDate.now().minusDays(1), ReservationStatus.PENDING).isEmpty();
+        boolean expected = reservationRepository.findByStartDateOlderThanAndStatus(LocalDate.now().minusDays(1), ReservationStatus.PENDING).isEmpty();
 
         Assertions.assertThat(expected).isTrue();
     }
 
     @Test
-    public void testSearchByExpiredDelayedReservations() {
+    public void testFindByEndDateOlderThanAndStatus() {
         testReservation.setReservationStatus(ReservationStatus.IN_PROGRESS);
         testReservation.setEndDate(LocalDate.now());
         reservationRepository.save(testReservation);
 
-        boolean expected = reservationRepository.searchExpiredDelayedReservations(LocalDate.now().plusDays(1), ReservationStatus.IN_PROGRESS).isEmpty();
+        boolean expected = reservationRepository.findByEndDateOlderThanAndStatus(LocalDate.now().plusDays(1), ReservationStatus.IN_PROGRESS).isEmpty();
 
         Assertions.assertThat(expected).isFalse();
     }
 
     @Test
-    public void testSearchByExpiredDelayedReservationWithBeforeEndDateReturnsEmpty() {
+    public void testFindByEndDateOlderThanAndStatusWithBeforeEndDateReturnsEmpty() {
         testReservation.setReservationStatus(ReservationStatus.IN_PROGRESS);
         testReservation.setEndDate(LocalDate.now());
         reservationRepository.save(testReservation);
 
-        boolean expected = reservationRepository.searchExpiredPendingReservations(LocalDate.now().minusDays(1), ReservationStatus.IN_PROGRESS).isEmpty();
+        boolean expected = reservationRepository.findByStartDateOlderThanAndStatus(LocalDate.now().minusDays(1), ReservationStatus.IN_PROGRESS).isEmpty();
 
         Assertions.assertThat(expected).isTrue();
     }
 
     @Test
-    public void testSearchByExpiredDelayedReservationsWithDifferentStatusReturnsEmpty() {
+    public void testFindByEndDateOlderThanAndStatusWithDifferentStatusReturnsEmpty() {
         testReservation.setReservationStatus(ReservationStatus.CANCELLED);
         testReservation.setStartDate(LocalDate.now());
         reservationRepository.save(testReservation);
 
-        boolean expected = reservationRepository.searchExpiredPendingReservations(LocalDate.now().plusDays(1), ReservationStatus.PENDING).isEmpty();
+        boolean expected = reservationRepository.findByStartDateOlderThanAndStatus(LocalDate.now().plusDays(1), ReservationStatus.PENDING).isEmpty();
 
         Assertions.assertThat(expected).isTrue();
     }
@@ -136,6 +137,7 @@ public class ReservationRepositoryTests {
                         foundLibrary.getId(),
                         LocalDate.now().minusDays(3),
                         LocalDate.now().plusDays(10),
+                        List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS),
                         PageRequest.of(0, 1))
                 .isEmpty();
 
@@ -156,6 +158,7 @@ public class ReservationRepositoryTests {
                         foundLibrary.getId(),
                         LocalDate.now().minusDays(3),
                         LocalDate.now(),
+                        List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS),
                         PageRequest.of(0, 1))
                 .isEmpty();
 
@@ -176,6 +179,7 @@ public class ReservationRepositoryTests {
                         foundLibrary.getId(),
                         LocalDate.now().minusDays(3),
                         LocalDate.now().plusDays(10),
+                        List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS),
                         PageRequest.of(0, 1))
                 .isEmpty();
 

@@ -24,8 +24,8 @@ public class ReservationValidator implements Validator {
             if (reservationDto.getStartDate().isBefore(LocalDate.now())) {
                 errors.rejectValue("startDate", "startDate.invalid", "startDate cannot be before current time");
             }
-            if(reservationDto.getStartDate().isAfter(reservationDto.getEndDate())){
-                errors.rejectValue("startDate","startDate.invalid","startDate cannot be after endDate");
+            if (reservationDto.getStartDate().isAfter(reservationDto.getEndDate())) {
+                errors.rejectValue("startDate", "startDate.invalid", "startDate cannot be after endDate");
             }
         }
     }

@@ -63,9 +63,11 @@ public class BookController {
     @GetMapping
     public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize,
                                          @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                         @RequestParam(name = "sortBy", required = false) String sortBy) {
+                                         @RequestParam(name = "sortDir", defaultValue = "asc") String sortDir,
+                                         @RequestParam(name = "sortBy") String sortBy
+    ) {
         if (pageSize != null && pageNumber != null) {
-            Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, sortBy)));
+            Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDir), sortBy)));
             return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
         }
         return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.findAll()));

@@ -2,7 +2,6 @@ package com.project.bookstore.repository;
 
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.types.ReservationStatus;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,22 +16,22 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             WHERE reservation.reservationStatus = :reservationStatus
             AND reservation.startDate < :now
             """)
-    List<Reservation> searchExpiredPendingReservations(LocalDate now, ReservationStatus reservationStatus);
+    List<Reservation> findByStartDateOlderThanAndStatus(LocalDate now, ReservationStatus reservationStatus);
 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE reservation.reservationStatus = :reservationStatus
             AND  reservation.endDate < :now
             """)
-    List<Reservation> searchExpiredDelayedReservations(LocalDate now, ReservationStatus reservationStatus);
+    List<Reservation> findByEndDateOlderThanAndStatus(LocalDate now, ReservationStatus reservationStatus);
 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE (reservation.startDate >= :startDate AND reservation.endDate <= :endDate)
-            AND reservation.reservationStatus IN ('PENDING','DELAYED','IN_PROGRESS')
+            AND reservation.reservationStatus IN :reservationStatusList
             AND reservation.reservedExemplar.book.library.id = :libraryId
             """)
-    Page<Reservation> searchReservationsForALibraryByTimePeriod(Long libraryId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<Reservation> searchReservationsForALibraryByTimePeriod(Long libraryId, LocalDate startDate, LocalDate endDate, List<ReservationStatus> reservationStatusList, Pageable pageable);
 
     @Query("""
             SELECT reservation FROM reservation reservation

@@ -82,7 +82,7 @@ public class ReservationController {
             throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
         }
         if (!statusMap.containsKey("reservationStatus")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing reservationStatus property");
         }
         Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(userId, ReservationStatus.valueOf(statusMap.get("reservationStatus")), PageRequest.of(pageNumber, pageSize));
         return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
@@ -93,7 +93,7 @@ public class ReservationController {
                                                      @PathVariable(name = "reservationId") Long reservationId,
                                                      @RequestBody Map<String, String> reservationStatusMap) {
         if (!reservationStatusMap.containsKey("reservationStatus")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing reservationStatus property");
         }
         Reservation updatedReservation = reservationService.updateReservationStatus(librarianId, reservationId, ReservationStatus.valueOf(reservationStatusMap.get("reservationStatus")));
         return ResponseEntity.ok(reservationMapper.mapReservationDtoFromReservation(updatedReservation));

@@ -67,7 +67,7 @@ public class UserController {
     public ResponseEntity<?> verifyAccount(@PathVariable(name = "userId") Long id,
                                            @RequestBody Map<String, String> codeMap) {
         if (!codeMap.containsKey("verificationCode")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing verificationCode property");
         }
         User verifiedUser = userService.verifyUserCode(id, codeMap.get("verificationCode"));
         return ResponseEntity.ok(userMapper.mapUserDtoFromUser(verifiedUser));
@@ -76,7 +76,7 @@ public class UserController {
     @PutMapping("/login")
     public ResponseEntity<?> loginIntoAccount(@RequestBody Map<String, String> loginCredentials) {
         if (!loginCredentials.containsKey("email") || !loginCredentials.containsKey("password")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing email and/or password properties");
         }
         Long id = userService.getUserIdAfterLogin(loginCredentials.get("email"), loginCredentials.get("password"));
         return ResponseEntity.ok(id);

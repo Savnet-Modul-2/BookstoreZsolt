@@ -78,9 +78,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, NOT_FOUND);
     }
 
-    @ExceptionHandler(UnavailableStatusChangeException.class)
-    public ResponseEntity<?> handleUnavailableStatusChangeException(UnavailableStatusChangeException unavailableStatusChangeException) {
-        ErrorDetail errorDetail = new ErrorDetail(unavailableStatusChangeException.getMessage());
+    @ExceptionHandler(InvalidStatusChangeException.class)
+    public ResponseEntity<?> handleInvalidStatusChangeException(InvalidStatusChangeException invalidStatusChangeException) {
+        ErrorDetail errorDetail = new ErrorDetail(invalidStatusChangeException.getMessage());
         return new ResponseEntity<>(errorDetail, BAD_REQUEST);
     }
 

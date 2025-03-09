@@ -67,7 +67,7 @@ public class LibrarianController {
     public ResponseEntity<?> verifyLibrarian(@PathVariable(name = "librarianId") Long librarianId,
                                              @RequestBody Map<String, String> codeMap) {
         if (!codeMap.containsKey("verificationCode")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing verificationCode property");
         }
         Librarian verifiedLibrarian = librarianService.verifyLibrarian(librarianId, codeMap.get("verificationCode"));
         return ResponseEntity.ok(librarianMapper.mapLibrarianDtoFromLibrarian(verifiedLibrarian));
@@ -76,7 +76,7 @@ public class LibrarianController {
     @PutMapping("/login")
     public ResponseEntity<?> loginIntoAccount(@RequestBody Map<String, String> loginCredentials) {
         if (!loginCredentials.containsKey("email") || !loginCredentials.containsKey("password")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
+            throw new RequestBodyMapKeyNotFoundException("Missing email and/or password property");
         }
         Long id = librarianService.getLibrarianIdAfterLogin(loginCredentials.get("email"), loginCredentials.get("password"));
         return ResponseEntity.ok(id);

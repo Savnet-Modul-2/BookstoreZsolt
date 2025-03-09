@@ -7,7 +7,6 @@ import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,9 +53,9 @@ public class ReservationService {
         Library foundLibrary = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Time period unavailable to be shown");
+            throw new IllegalArgumentException("startDate can't be after endDate");
         }
-        return reservationRepository.searchReservationsForALibraryByTimePeriod(foundLibrary.getId(), startDate, endDate, pageable);
+        return reservationRepository.searchReservationsForALibraryByTimePeriod(foundLibrary.getId(), startDate, endDate, List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), pageable);
     }
 
     public Page<Reservation> findReservationsForAUserByStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable) {
@@ -76,7 +75,7 @@ public class ReservationService {
             throw new UnauthorizedLibrarianAccessException("Librarian doesn't have access to the specified book exemplar");
         }
         if (!foundReservation.getReservationStatus().isNextStatePossible(reservationStatus)) {
-            throw new UnavailableStatusChangeException("Cannot change reservation status");
+            throw new InvalidStatusChangeException("Cannot change reservation status");
         }
         foundReservation.setReservationStatus(reservationStatus);
         return reservationRepository.save(foundReservation);

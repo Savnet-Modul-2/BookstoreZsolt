@@ -25,14 +25,14 @@ public class ReservationScheduler {
 
     @Scheduled(cron = "0 0 22 * * *")
     public void reminderSetCancelledReservations() {
-        List<Reservation> reservationList = reservationRepository.searchExpiredPendingReservations(LocalDate.now(), ReservationStatus.PENDING);
+        List<Reservation> reservationList = reservationRepository.findByStartDateOlderThanAndStatus(LocalDate.now(), ReservationStatus.PENDING);
         reservationList.forEach(reservation -> reservation.setReservationStatus(ReservationStatus.CANCELLED));
         reservationRepository.saveAll(reservationList);
     }
 
     @Scheduled(cron = "0 0 22 * * *")
     public void reminderSetDelayedReservations() {
-        List<Reservation> reservationList = reservationRepository.searchExpiredDelayedReservations(LocalDate.now(), ReservationStatus.IN_PROGRESS);
+        List<Reservation> reservationList = reservationRepository.findByEndDateOlderThanAndStatus(LocalDate.now(), ReservationStatus.IN_PROGRESS);
         reservationList.forEach(reservation -> reservation.setReservationStatus(ReservationStatus.DELAYED));
         reservationRepository.saveAll(reservationList);
         librarianService.sendDelayedReservationEmail(reservationList);
