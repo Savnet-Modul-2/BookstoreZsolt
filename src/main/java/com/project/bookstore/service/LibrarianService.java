@@ -1,14 +1,13 @@
 package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
-import com.project.bookstore.entity.User;
-import com.project.bookstore.exceptions.CodeExpirationTimeException;
-import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
-import com.project.bookstore.exceptions.EntityBadCredentialsException;
+import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.exceptions.*;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
 import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.LibrarianRepository;
+import com.project.bookstore.repository.ReservationRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,8 @@ public class LibrarianService {
     private LibrarianRepository librarianRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     public Librarian createLibrarian(Librarian librarian) {
         if (librarianRepository.existsByEmail(librarian.getEmail())) {
@@ -32,7 +33,7 @@ public class LibrarianService {
         String librarianVerificationCode = CodeGenerator.generateCode();
         librarian.setVerificationCode(librarianVerificationCode);
         librarian.setVerificationCodeTime(LocalDateTime.now());
-        emailService.sendEmail(new EmailDetails(librarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_STRING.formatted(librarianVerificationCode)));
+        emailService.sendEmail(new EmailDetails(librarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(librarianVerificationCode)));
         return librarianRepository.save(librarian);
     }
 
@@ -73,6 +74,18 @@ public class LibrarianService {
 
     public void deleteById(Long id) {
         librarianRepository.deleteById(id);
+    }
+
+    public void sendDelayedReservationEmail(List<Reservation> reservationList) {
+        reservationList.forEach(reservation -> emailService.sendEmail(new EmailDetails(
+                reservation.getReservedExemplar().getBook().getLibrary().getLibrarian().getEmail(),
+                EmailDetails.BOOK_DELAYED_EMAIL_SUBJECT,
+                EmailDetails.BOOK_DELAYED_EMAIL_BODY.formatted(
+                        reservation.getReservedExemplar().getBook().getTitle(),
+                        reservation.getReservedUser().getFirstName(),
+                        reservation.getReservedUser().getEmail(),
+                        reservation.getReservedUser().getPhoneNumber())
+        )));
     }
 }
 

@@ -105,8 +105,7 @@ public class LibrarianServiceTests {
         librarianService.verifyLibrarian(testLibrarian.getId(), testLibrarian.getVerificationCode());
 
         Assertions.assertThat(testLibrarian.getVerificationCode()).isEqualTo(null);
-        //TODO: isEqualTo expect a LDT String, should convert somehow to null
-        //Assertions.assertThat(testUser.getVerificationCodeTime());
+        Assertions.assertThat(testLibrarian.getVerificationCodeTime()).isNull();
         Assertions.assertThat(testLibrarian.isVerifiedAccount()).isEqualTo(true);
     }
 
@@ -147,5 +146,10 @@ public class LibrarianServiceTests {
         Assertions.assertThatThrownBy(() -> librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), errorPassword))
                 .isInstanceOf(EntityBadCredentialsException.class)
                 .hasMessageContaining("Couldn't login to the account with the provided password");
+    }
+
+    //TODO: check if sendDelayedReservationEmail can be tested
+    @Test
+    public void testSendDelayedReservationEmail() {
     }
 }

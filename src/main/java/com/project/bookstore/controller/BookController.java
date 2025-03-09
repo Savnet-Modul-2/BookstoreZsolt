@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -52,11 +53,21 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(createdBook));
     }
 
+    @PostMapping("/{libraryId}")
+    public ResponseEntity<?> addBookToLibrary(@PathVariable(name = "libraryId") Long libraryId,
+                                              @Valid @RequestBody BookDto bookDto) {
+        Book book = bookService.addBookToLibrary(libraryId, bookMapper.mapBookFromBookDto(bookDto));
+        return ResponseEntity.ok(bookMapper.mapBookDtoFromBook(book));
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllBooks(@RequestParam(name = "pageSize", required = false) Integer pageSize,
-                                         @RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
+                                         @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                         @RequestParam(name = "sortDir", defaultValue = "asc") String sortDir,
+                                         @RequestParam(name = "sortBy") String sortBy
+    ) {
         if (pageSize != null && pageNumber != null) {
-            Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize));
+            Page<Book> pageBook = bookService.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDir), sortBy)));
             return ResponseEntity.ok(pageBook.map(book -> bookMapper.mapBookDtoFromBook(book)));
         }
         return ResponseEntity.ok(bookMapper.mapBookDtoListFromBookList(bookService.findAll()));
