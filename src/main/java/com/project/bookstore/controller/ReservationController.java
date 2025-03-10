@@ -1,6 +1,7 @@
 package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.ReservationDto;
+import com.project.bookstore.dto.ReservationStatusFilterDto;
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.EntityValidationException;
@@ -62,14 +63,9 @@ public class ReservationController {
     public ResponseEntity<?> getAllReservationsForALibraryByTimePeriod(@PathVariable(name = "libraryId") Long libraryId,
                                                                        @RequestParam(name = "pageSize") Integer pageSize,
                                                                        @RequestParam(name = "pageNumber") Integer pageNumber,
-                                                                       @RequestBody Map<String, String> timePeriodMap) {
-        if (pageSize == null || pageNumber == null) {
-            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
-        }
-        if (!timePeriodMap.containsKey("startDate") || !timePeriodMap.containsKey("endDate")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
-        }
-        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(libraryId, LocalDate.parse(timePeriodMap.get("startDate")), LocalDate.parse(timePeriodMap.get("endDate")), PageRequest.of(pageNumber, pageSize));
+                                                                       @RequestBody ReservationStatusFilterDto reservationStatusFilterDto) {
+
+        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(libraryId,reservationStatusFilterDto.getStartDate(),reservationStatusFilterDto.getEndDate(),reservationStatusFilterDto.getReservationStatusList() ,PageRequest.of(pageNumber, pageSize));
         return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
     }
 
@@ -77,14 +73,8 @@ public class ReservationController {
     public ResponseEntity<?> getAllReservationsForAUserByStatus(@PathVariable(name = "userId") Long userId,
                                                                 @RequestParam(name = "pageSize") Integer pageSize,
                                                                 @RequestParam(name = "pageNumber") Integer pageNumber,
-                                                                @RequestBody Map<String, String> statusMap) {
-        if (pageSize == null || pageNumber == null) {
-            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
-        }
-        if (!statusMap.containsKey("reservationStatus")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing reservationStatus property");
-        }
-        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(userId, ReservationStatus.valueOf(statusMap.get("reservationStatus")), PageRequest.of(pageNumber, pageSize));
+                                                                @RequestBody ReservationStatusFilterDto reservationStatusFilterDto) {
+        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(userId, reservationStatusFilterDto.getReservationStatusList(), PageRequest.of(pageNumber, pageSize));
         return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
     }
 

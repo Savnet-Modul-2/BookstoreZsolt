@@ -1,6 +1,7 @@
 package com.project.bookstore.helper;
 
 public class EmailDetails {
+    public static final String EMAIL_SENT_SUCCESSFULLY = "Your email with the code was sent successfully! Check your inbox";
     public static final String CODE_EMAIL_SUBJECT = "Your code for the Bookstore App";
     public static final String CODE_EMAIL_BODY = "Your verification code for your account is: %s\n This code is valid for 1 hour.";
     public static final String RESERVATION_CONFIRMATION_EMAIL_BODY = "Your reservation for %s was successful!\nYou can come and pick up your book at %s, %s starting from %s";

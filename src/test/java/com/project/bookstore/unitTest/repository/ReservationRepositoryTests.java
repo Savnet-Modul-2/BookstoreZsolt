@@ -196,7 +196,7 @@ public class ReservationRepositoryTests {
         User foundUser = userRepository.findAll().get(0);
         boolean expected = reservationRepository.searchReservationsForAUserByReservationStatus(
                         foundUser.getId(),
-                        ReservationStatus.PENDING,
+                        List.of(ReservationStatus.PENDING),
                         PageRequest.of(0, 1))
                 .isEmpty();
 
@@ -212,7 +212,7 @@ public class ReservationRepositoryTests {
 
         boolean expected = reservationRepository.searchReservationsForAUserByReservationStatus(
                         10L,
-                        ReservationStatus.PENDING,
+                        List.of(ReservationStatus.PENDING),
                         PageRequest.of(0, 1))
                 .isEmpty();
 
@@ -229,7 +229,7 @@ public class ReservationRepositoryTests {
         User foundUser = userRepository.findAll().get(0);
         boolean expected = reservationRepository.searchReservationsForAUserByReservationStatus(
                         foundUser.getId(),
-                        ReservationStatus.IN_PROGRESS,
+                        List.of(ReservationStatus.IN_PROGRESS),
                         PageRequest.of(0, 1))
                 .isEmpty();
 

@@ -151,9 +151,9 @@ public class ReservationTests {
         Pageable testPage = PageRequest.of(0, 1);
         List<Reservation> testReservationList = List.of(testReservation);
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
-        Mockito.when(reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), testPage)).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
+        Mockito.when(reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage)).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
 
-        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), testPage);
+        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage);
 
         Assertions.assertThat(reservationPage).contains(testReservation);
         Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), testPage);
@@ -163,7 +163,7 @@ public class ReservationTests {
     public void testFindReservationsForALibraryWhenLibraryDoesntExistThrowsException() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), PageRequest.of(0, 1)))
+        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Library with id %s not found".formatted(testLibrary.getId()));
 
@@ -174,7 +174,7 @@ public class ReservationTests {
     public void testFindReservationsForALibraryWhenDatesDontMatchThrowsException() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
 
-        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), PageRequest.of(0, 1)))
+        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("startDate can't be after endDate");
         Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), PageRequest.of(0, 1));
@@ -185,22 +185,22 @@ public class ReservationTests {
         Pageable testPage = PageRequest.of(0, 1);
         List<Reservation> testReservationList = List.of(testReservation);
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        Mockito.when(reservationRepository.searchReservationsForAUserByReservationStatus(testUser.getId(), ReservationStatus.PENDING, PageRequest.of(0, 1))).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
+        Mockito.when(reservationRepository.searchReservationsForAUserByReservationStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1))).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
 
-        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(testUser.getId(), ReservationStatus.PENDING, PageRequest.of(0, 1));
+        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
 
         Assertions.assertThat(reservationPage).contains(testReservation);
-        Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForAUserByReservationStatus(testUser.getId(), ReservationStatus.PENDING, PageRequest.of(0, 1));
+        Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForAUserByReservationStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
     }
 
     @Test
     public void testFindReservationsForAUserByStatusWhenUserNotFoundThrowsException() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForAUserByStatus(testUser.getId(), ReservationStatus.PENDING, PageRequest.of(0, 1)))
+        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForAUserByStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User with id %s not found".formatted(testUser.getId()));
-        Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForAUserByReservationStatus(testUser.getId(), ReservationStatus.PENDING, PageRequest.of(0, 1));
+        Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForAUserByReservationStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
     }
 
     @Test

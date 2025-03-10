@@ -36,7 +36,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE reservation.reservedUser.id = :userId
-            AND reservation.reservationStatus = :reservationStatus
+            AND reservation.reservationStatus IN :reservationStatusList
             """)
-    Page<Reservation> searchReservationsForAUserByReservationStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable);
+    Page<Reservation> searchReservationsForAUserByReservationStatus(Long userId, List<ReservationStatus> reservationStatusList, Pageable pageable);
 }

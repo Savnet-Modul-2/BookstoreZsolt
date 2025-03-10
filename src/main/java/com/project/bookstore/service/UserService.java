@@ -12,6 +12,9 @@ import com.project.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -29,6 +32,7 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new EntityExistsException("User with the email address %s already exists".formatted(user.getEmail()));
         }
+        System.out.println(Thread.currentThread().getName());
         String userVerificationCode = CodeGenerator.generateCode();
         user.setVerificationCode(userVerificationCode);
         user.setVerificationCodeTime(LocalDateTime.now());
@@ -84,5 +88,22 @@ public class UserService {
                         reservation.getReservedExemplar().getBook().getLibrary().getName(),
                         reservation.getReservedExemplar().getBook().getLibrary().getCity())
         )));
+    }
+
+    public String sendVerificationCodeEmail(String userEmail) {
+        User foundUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
+        LocalDateTime user = foundUser.getVerificationCodeTime();
+        LocalDateTime now = LocalDateTime.now().minusMinutes(10);
+        if (user.isBefore(now)) {
+            emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundUser.getVerificationCode())));
+        } else {
+            String newCode = CodeGenerator.generateCode();
+            emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(newCode)));
+            foundUser.setVerificationCode(newCode);
+            foundUser.setVerificationCodeTime(LocalDateTime.now());
+            userRepository.save(foundUser);
+        }
+        return EmailDetails.EMAIL_SENT_SUCCESSFULLY;
     }
 }
