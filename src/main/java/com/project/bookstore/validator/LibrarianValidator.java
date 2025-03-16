@@ -34,7 +34,6 @@ public class LibrarianValidator implements Validator {
         } else if (!Pattern.matches(EMAIL_PATTERN, librarianDto.getEmail())) {
             errors.rejectValue("email", "email.invalid", "Invalid email format");
         }
-
         if (librarianDto.getLibrary() == null) {
             errors.rejectValue("library", "library.null", "library cannot be null");
         } else {

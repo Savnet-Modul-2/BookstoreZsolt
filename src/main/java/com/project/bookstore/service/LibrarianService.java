@@ -93,15 +93,13 @@ public class LibrarianService {
         Librarian foundLibrarian = librarianRepository.findByEmail(librarianEmail)
                 .orElseThrow(() -> new EntityNotFoundException("Librarian with email %s not found".formatted(librarianEmail)));
         Duration duration = Duration.between(foundLibrarian.getVerificationCodeTime(), LocalDateTime.now());
-        if (duration.toMinutes() < 50) {
-            emailService.sendEmail(new EmailDetails(foundLibrarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundLibrarian.getVerificationCode())));
-        } else {
+        if (duration.toMinutes() > 50) {
             String newCode = CodeGenerator.generateCode();
-            emailService.sendEmail(new EmailDetails(foundLibrarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(newCode)));
             foundLibrarian.setVerificationCode(newCode);
             foundLibrarian.setVerificationCodeTime(LocalDateTime.now());
             librarianRepository.save(foundLibrarian);
         }
+        emailService.sendEmail(new EmailDetails(foundLibrarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundLibrarian.getVerificationCode())));
         return EmailDetails.EMAIL_SENT_SUCCESSFULLY;
     }
 }

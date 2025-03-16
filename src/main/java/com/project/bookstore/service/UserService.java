@@ -1,5 +1,6 @@
 package com.project.bookstore.service;
 
+import com.project.bookstore.entity.Librarian;
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
@@ -89,17 +90,15 @@ public class UserService {
 
     public String sendVerificationCodeEmail(String userEmail) {
         User foundUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with email %s not found".formatted(userEmail)));
         Duration duration = Duration.between(foundUser.getVerificationCodeTime(), LocalDateTime.now());
-        if (duration.toMinutes() < 50) {
-            emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundUser.getVerificationCode())));
-        } else {
+        if (duration.toMinutes() > 50) {
             String newCode = CodeGenerator.generateCode();
-            emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(newCode)));
             foundUser.setVerificationCode(newCode);
             foundUser.setVerificationCodeTime(LocalDateTime.now());
             userRepository.save(foundUser);
         }
+        emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundUser.getVerificationCode())));
         return EmailDetails.EMAIL_SENT_SUCCESSFULLY;
     }
 }

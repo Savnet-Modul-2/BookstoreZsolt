@@ -14,7 +14,6 @@ public class EmailService {
 
     @Async
     public void sendEmail(EmailDetails details) {
-        System.out.println(Thread.currentThread().getName());
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(details.getRecipient());
         mailMessage.setText(details.getMsgBody());
