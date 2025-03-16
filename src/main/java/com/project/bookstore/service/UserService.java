@@ -12,9 +12,6 @@ import com.project.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -69,7 +66,7 @@ public class UserService {
         if (!user.isVerifiedAccount()) {
             throw new EntityAccountNotVerifiedException("This account is not yet verified");
         }
-        if (!user.getPassword().equals(PasswordEncryptor.encryptUserPasswordWithSHA256(userPassword))) {
+        if (!user.getPassword().equals(PasswordEncryptor.encryptPasswordWithSHA256(userPassword))) {
             throw new EntityBadCredentialsException("Couldn't login to the account with the provided password");
         }
         return user.getId();
@@ -93,9 +90,8 @@ public class UserService {
     public String sendVerificationCodeEmail(String userEmail) {
         User foundUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
-        LocalDateTime user = foundUser.getVerificationCodeTime();
-        LocalDateTime now = LocalDateTime.now().minusMinutes(10);
-        if (user.isBefore(now)) {
+        Duration duration = Duration.between(foundUser.getVerificationCodeTime(), LocalDateTime.now());
+        if (duration.toMinutes() < 50) {
             emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundUser.getVerificationCode())));
         } else {
             String newCode = CodeGenerator.generateCode();

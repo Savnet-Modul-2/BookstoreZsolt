@@ -10,7 +10,7 @@ import java.util.List;
 public class ReservationStatusFilterDto {
     private LocalDate startDate;
     private LocalDate endDate;
-    private List<ReservationStatus> reservationStatusList = new ArrayList<>();
+    private List<ReservationStatus> reservationStatusList;
 
     public List<ReservationStatus> getReservationStatusList() {
         return reservationStatusList;

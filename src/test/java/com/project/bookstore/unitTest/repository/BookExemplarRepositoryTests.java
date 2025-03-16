@@ -45,40 +45,42 @@ public class BookExemplarRepositoryTests {
     }
 
     @Test
-    public void testFindFirstExemplarAvailable() {
+    public void givenBook_FindFirstExemplarAvailable_ReturnBookExemplar() {
         bookRepository.save(testBook);
         Book testBookForId = bookRepository.findAll().get(0);
-        boolean expected = bookExemplarRepository.findFirstExemplarAvailable(testBookForId.getId(),
+        BookExemplar expected = bookExemplarRepository.findFirstExemplarAvailable(testBookForId.getId(),
                         LocalDate.of(2025, 3, 5),
-                        LocalDate.of(2025, 3, 7))
-                .isPresent();
-        Assertions.assertThat(expected).isTrue();
+                        LocalDate.of(2025, 3, 7)).orElse(null);
+
+        Assertions.assertThat(expected).isEqualTo(testBookExemplar);
     }
 
     @Test
-    public void testFindFirstExemplarAvailableWhenBookIdDoesntExist() {
-        boolean expected = bookExemplarRepository.findFirstExemplarAvailable(1L,
+    public void givenNothing_FindFirstExemplarAvailable_ReturnNull() {
+        BookExemplar expected = bookExemplarRepository.findFirstExemplarAvailable(1L,
                         LocalDate.of(2025, 3, 5),
                         LocalDate.of(2025, 3, 7))
-                .isPresent();
+                .orElse(null);
 
-        Assertions.assertThat(expected).isFalse();
+        Assertions.assertThat(expected).isNull();
     }
 
     @Test
-    public void testFindFirstExemplarAvailableWhenDatesDontMatch() {
+    public void givenWrongDates_FindFirstExemplarAvailable_ReturnNull() {
         testReservation.setReservedExemplar(testBookExemplar);
         testReservation.setStartDate(LocalDate.of(2025, 3, 5));
         testReservation.setEndDate(LocalDate.of(2025, 3, 7));
         testReservation.setReservationStatus(ReservationStatus.PENDING);
         testBookExemplar.getReservations().add(testReservation);
         bookRepository.save(testBook);
+
         Book testBookForId = bookRepository.findAll().get(0);
         reservationRepository.save(testReservation);
-        boolean expected = bookExemplarRepository.findFirstExemplarAvailable(testBookForId.getId(),
+        BookExemplar expected = bookExemplarRepository.findFirstExemplarAvailable(testBookForId.getId(),
                         LocalDate.of(2025, 3, 5),
                         LocalDate.of(2025, 3, 6))
-                .isPresent();
-        Assertions.assertThat(expected).isFalse();
+                .orElse(null);
+
+        Assertions.assertThat(expected).isNull();
     }
 }

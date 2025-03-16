@@ -4,6 +4,8 @@ import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
 import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
 import com.project.bookstore.exceptions.EntityBadCredentialsException;
+import com.project.bookstore.helper.EmailDetails;
+import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.UserRepository;
 import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.UserService;
@@ -11,8 +13,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.jupiter.api.BeforeEach;;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -38,13 +39,15 @@ public class UserServiceTests {
         testUser.setFirstName("testFirstName");
         testUser.setLastName("testLastName");
         testUser.setEmail("testEmail@gmail.com");
-        testUser.setPassword("testPassword");
+        testUser.setPassword(PasswordEncryptor.encryptPasswordWithSHA256("testPassword"));
         testUser.setVerificationCode("testVerificationCode");
         testUser.setVerificationCodeTime(LocalDateTime.now());
     }
 
     @Test
-    public void testUserIsCreated() {
+    public void givenUser_CreateUser_ReturnUser() {
+        Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
+
         userService.createUser(testUser);
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         Mockito.verify(userRepository).save(userArgumentCaptor.capture());
@@ -54,8 +57,8 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testUserEmailExistsThrowsException() {
-        Mockito.when(userRepository.existsByEmail(testUser.getEmail())).thenReturn(true);
+    public void givenExistingUser_CreateUser_ThrowException() {
+        Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(true);
 
         Assertions.assertThatThrownBy(() -> userService.createUser(testUser))
                 .isInstanceOf(EntityExistsException.class)
@@ -64,15 +67,15 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testFindAll() {
+    public void givenNothing_FindAll_VerifyCalledMethod() {
         userService.findAll();
 
         Mockito.verify(userRepository).findAll();
     }
 
     @Test
-    public void testFindById() {
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+    public void givenUserId_FindById_ReturnUser() {
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
 
         User foundUser = userService.findById(testUser.getId());
 
@@ -81,8 +84,8 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testFindByIdThrowsException() {
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
+    public void givenWringUserId_FindById_ThrowException() {
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.findById(testUser.getId()))
                 .isInstanceOf(EntityNotFoundException.class)
@@ -90,15 +93,15 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testDeleteById() {
+    public void givenUserId_DeleteById_VerifyMethodCalled() {
         userService.deleteById(testUser.getId());
 
         Mockito.verify(userRepository).deleteById(testUser.getId());
     }
 
     @Test
-    public void testVerifyUserCodeWithUserFound() {
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+    public void givenUserIdAndCode_VerifyUserCode_ReturnVerifiedUser() {
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
 
         userService.verifyUserCode(testUser.getId(), testUser.getVerificationCode());
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
@@ -112,30 +115,29 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testVerifyUserCodeNotEqualThrowException() {
+    public void givenWrongUserCode_VerifyUserCode_ThrowException() {
         String errorVerificationCode = "errorVerificationCode";
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
 
         Assertions.assertThatThrownBy(() -> userService.verifyUserCode(testUser.getId(), errorVerificationCode))
                 .isInstanceOf(CodeExpirationTimeException.class)
                 .hasMessageContaining("The time for code verification has expired");
     }
 
-    //TODO: Check to make this test run
     @Test
-    @Disabled
-    public void testGetUserIdAfterLogin() {
-        Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+    public void givenEmailAndPassword_GetUserIdAfterLogin_ReturnUserId() {
+        String testPassword = "testPassword";
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(testUser));
         testUser.setVerifiedAccount(true);
 
-        Long testId = userService.getUserIdAfterLogin(testUser.getEmail(), testUser.getPassword());
+        Long testId = userService.getUserIdAfterLogin(testUser.getEmail(), testPassword);
 
         Assertions.assertThat(testId).isEqualTo(testUser.getId());
     }
 
     @Test
-    public void testGetUserIdAfterLoginWhenNotVerifiedThrowException() {
-        Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+    public void givenUnverifiedUser_GetUserIdAfterLogin_ThrowException() {
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(testUser));
 
         Assertions.assertThat(testUser.isVerifiedAccount()).isFalse();
         Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), testUser.getPassword()))
@@ -144,18 +146,12 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testGetUserIdAfterLoginWhenBadCredentialsException() {
-        String errorPassword = "errorPassword";
-        Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+    public void givenWrongPassword_GetUserIdAfterLogin_ThrowException() {
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(testUser));
         testUser.setVerifiedAccount(true);
 
-        Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), errorPassword))
+        Assertions.assertThatThrownBy(() -> userService.getUserIdAfterLogin(testUser.getEmail(), testUser.getPassword()))
                 .isInstanceOf(EntityBadCredentialsException.class)
                 .hasMessageContaining("Couldn't login to the account with the provided password");
-    }
-
-    //TODO: check if sendDelayedReservationEmail can be tested
-    @Test
-    public void testSendDelayedReservationEmail() {
     }
 }

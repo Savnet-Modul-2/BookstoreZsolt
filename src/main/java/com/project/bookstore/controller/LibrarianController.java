@@ -82,6 +82,14 @@ public class LibrarianController {
         return ResponseEntity.ok(id);
     }
 
+    @PutMapping
+    public ResponseEntity<?> resendVerificationCodeEmail(@RequestBody Map<String, String> emailMap) {
+        if (!emailMap.containsKey("librarianEmail")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing librarianEmail property");
+        }
+        return ResponseEntity.ok(librarianService.sendVerificationCodeEmail(emailMap.get("librarianEmail")));
+    }
+
     @DeleteMapping("/{librarianId}")
     public ResponseEntity<?> deleteLibrarianById(@PathVariable(name = "librarianId") Long librarianId) {
         librarianService.deleteById(librarianId);

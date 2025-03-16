@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class BookExemplarTests {
+public class BookExemplarServiceTests {
     @Mock
     private BookExemplarRepository bookExemplarRepository;
     @Mock
@@ -42,33 +42,28 @@ public class BookExemplarTests {
     @BeforeEach
     public void setUp() {
         testBookExemplar = new BookExemplar();
-        testBookExemplar.setId(1L);
+        testBook = new Book();
+        testReservation = new Reservation();
         testBookExemplarsList = new ArrayList<>();
         testBookExemplarsList.add(testBookExemplar);
-        testBook = new Book();
-        testBook.setId(1L);
         testBook.getBookExemplars().add(testBookExemplar);
-        testReservation = new Reservation();
         testReservation.setStartDate(LocalDate.parse("2025-03-03"));
         testReservation.setEndDate(LocalDate.parse("2025-03-06"));
     }
 
     @Test
-    public void testBookExemplarIsCreated() {
-        Book testBook = new Book();
-        testBook.setId(1L);
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+    public void givenBookIdAndBookExemplarList_CreateBookExemplars_ReturnList() {
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.saveAll(testBookExemplarsList)).thenReturn(testBookExemplarsList);
 
-        List<BookExemplar> savedBookExemplars = bookExemplarService.createBookExemplars(testBook.getId(), testBookExemplarsList);
+        List<BookExemplar> savedBookExemplars = bookExemplarService.createBookExemplars(Mockito.anyLong(), testBookExemplarsList);
 
         Assertions.assertThat(savedBookExemplars).isEqualTo(testBookExemplarsList);
-
         Mockito.verify(bookExemplarRepository, Mockito.times(1)).saveAll(testBookExemplarsList);
     }
 
     @Test
-    public void testBookExemplarIsCreatedThrowsException() {
+    public void givenNothing_CreateBookExemplars_ThrowsException() {
         Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> bookExemplarService.createBookExemplars(Mockito.anyLong(), testBookExemplarsList))
@@ -77,14 +72,14 @@ public class BookExemplarTests {
     }
 
     @Test
-    public void testFindAllBookExemplars() {
+    public void givenNothing_FindAll_VerifyCalledMethod() {
         bookExemplarService.findAll();
 
         Mockito.verify(bookExemplarRepository).findAll();
     }
 
     @Test
-    public void testFindAllBookExemplarsPaginated() {
+    public void givenPagination_FindAll_VerifyCalledMethod() {
         Pageable testPage = PageRequest.of(0, testBookExemplarsList.size());
         Mockito.when(bookExemplarRepository.findAll(testPage))
                 .thenReturn(new PageImpl<>(testBookExemplarsList, testPage, testBookExemplarsList.size()));
@@ -95,17 +90,17 @@ public class BookExemplarTests {
     }
 
     @Test
-    public void testFindAllBookExemplarsForABookPaginated() {
+    public void givenBookIdAndPagination_FindAll_ReturnNotEmpty() {
         Pageable testPage = PageRequest.of(0, testBook.getBookExemplars().size());
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testBook));
 
-        Page<BookExemplar> testBookExemplarPage = bookExemplarService.findAll(testBook.getId(), testPage);
+        Page<BookExemplar> testBookExemplarPage = bookExemplarService.findAll(Mockito.anyLong(), testPage);
 
         Assertions.assertThat(testBookExemplarPage).isNotEmpty();
     }
 
     @Test
-    public void testFindAllBookExemplarsForABookThrowsException() {
+    public void givenPaginationAndWrongBookId_FindAll_ThrowException() {
         Pageable testPage = PageRequest.of(0, testBook.getBookExemplars().size());
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
 
@@ -115,14 +110,14 @@ public class BookExemplarTests {
     }
 
     @Test
-    public void testDeleteById() {
+    public void givenBookId_DeleteById_VerifyCalledMethod() {
         bookExemplarService.deleteById(testBookExemplar.getId());
 
         Mockito.verify(bookExemplarRepository).deleteById(testBookExemplar.getId());
     }
 
     @Test
-    public void testFindFirstBookExemplarForReservation() {
+    public void givenBookId_FindFirstBookExemplarForReservation_ReturnBookExemplar() {
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.of(testBookExemplar));
 
@@ -133,7 +128,7 @@ public class BookExemplarTests {
     }
 
     @Test
-    public void testFindFirstBookExemplarForReservationOnBookIdThrowsException() {
+    public void givenWrongBookId_FindFirstBookExemplarForReservation_ThrowException() {
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> bookExemplarService.findFirstBookExemplarForReservation(testBook.getId(), testReservation))
@@ -142,7 +137,7 @@ public class BookExemplarTests {
     }
 
     @Test
-    public void testFindFirstBookForReservationOnBookExemplarThrowsException() {
+    public void givenNoExemplarAvailable_FindFirstBookExemplarForReservation_ThrowException() {
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.empty());
 

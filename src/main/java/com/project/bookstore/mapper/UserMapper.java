@@ -16,7 +16,7 @@ public class UserMapper {
         user.setYearOfBirth(userDto.getYearOfBirth());
         user.setGender(userDto.getGender());
         user.setEmail(userDto.getEmail());
-        user.setPassword(PasswordEncryptor.encryptUserPasswordWithSHA256(userDto.getPassword()));
+        user.setPassword(PasswordEncryptor.encryptPasswordWithSHA256(userDto.getPassword()));
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setCountry(userDto.getCountry());
         user.setVerifiedAccount(userDto.isVerifiedAccount());

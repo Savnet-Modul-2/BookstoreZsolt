@@ -31,7 +31,7 @@ public class LibrarianRepositoryTests {
     }
 
     @Test
-    public void testShouldFindLibrarianByEmailIfExists() {
+    public void givenEmail_ExistsByEmail_ReturnTrue() {
         String testEmail = "test@gmail.com";
 
         librarianRepository.save(testLibrarian);
@@ -41,7 +41,7 @@ public class LibrarianRepositoryTests {
     }
 
     @Test
-    public void testShouldNotFindLibrarianByEmailNotExists() {
+    public void givenNothing_ExistsByEmail_ReturnFalse() {
         String testEmail = "test@gmail.com";
 
         boolean expected = librarianRepository.existsByEmail(testEmail);
@@ -50,21 +50,21 @@ public class LibrarianRepositoryTests {
     }
 
     @Test
-    public void testShouldFindLibrarianByEmail() {
+    public void givenEmail_FindByEmail_ReturnLibrarian() {
         String testEmail = "test@gmail.com";
 
         librarianRepository.save(testLibrarian);
-        Librarian foundLibrarian = librarianRepository.findByEmail(testEmail).orElseThrow();
+        Librarian foundLibrarian = librarianRepository.findByEmail(testEmail).orElse(null);
 
         Assertions.assertThat(foundLibrarian).isEqualTo(testLibrarian);
     }
 
     @Test
-    public void testShouldNotFindLibrarianByEmail() {
+    public void givenNothing_FindByEmail_ReturnNull() {
         String testEmail = "test@gmail.com";
 
         Librarian foundLibrarian = librarianRepository.findByEmail(testEmail).orElse(null);
 
-        Assertions.assertThat(foundLibrarian).isNotEqualTo(testLibrarian);
+        Assertions.assertThat(foundLibrarian).isNull();
     }
 }

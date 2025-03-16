@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class ReservationTests {
+public class ReservationServiceTests {
     @Mock
     private LibraryRepository libraryRepository;
     @Mock
@@ -70,13 +70,13 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBook() {
+    public void givenReservation_ReserveBook_ReturnReservation() {
         testUser.setVerifiedAccount(true);
-        testBookExemplar.setMaximumReservationDuration(1);
+        testBookExemplar.setMaximumReservationDuration(10);
         testReservation.setStartDate(LocalDate.now());
         testReservation.setEndDate(LocalDate.now().plusDays(3));
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.of(testBookExemplar));
 
         reservationService.reserveBook(testUser.getId(), testBook.getId(), testReservation);
@@ -88,8 +88,8 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBookWhenUserNotFoundThrowsException() {
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.empty());
+    public void givenWrongUserId_ReserveBook_ThrowException() {
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> reservationService.reserveBook(testUser.getId(), testBook.getId(), testReservation))
                 .isInstanceOf(EntityNotFoundException.class)
@@ -97,9 +97,9 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBookWhenBookNotFoundThrowsException() {
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
+    public void givenWrongBookId_ReserveBook_ThrowException() {
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> reservationService.reserveBook(testUser.getId(), testBook.getId(), testReservation))
                 .isInstanceOf(EntityNotFoundException.class)
@@ -107,9 +107,9 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBookWhenExemplarNotAvailableThrowsException() {
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+    public void givenBookWithNoExemplars_ReserveBook_ThrowException() {
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> reservationService.reserveBook(testUser.getId(), testBook.getId(), testReservation))
@@ -118,10 +118,11 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBookWhenReservationDaysExceedsReservationPeriodThrowsException() {
-        testBookExemplar.setMaximumReservationDuration(4);
+    public void givenWrongReservationDates_ReserveBook_ThrowException() {
+        testBookExemplar.setMaximumReservationDuration(2);
         testReservation.setStartDate(LocalDate.now());
         testReservation.setEndDate(LocalDate.now().plusDays(3));
+        testUser.setVerifiedAccount(true);
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.of(testBookExemplar));
@@ -132,38 +133,37 @@ public class ReservationTests {
     }
 
     @Test
-    public void testReserveBookWhenReservationDaysWhenUserIsNotVerifiedThrowsException() {
-        testBookExemplar.setMaximumReservationDuration(1);
+    public void givenUserNotVerified_ReserveBook_ThrowException() {
+        testBookExemplar.setMaximumReservationDuration(10);
         testReservation.setStartDate(LocalDate.now());
         testReservation.setEndDate(LocalDate.now().plusDays(3));
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testBook));
         Mockito.when(bookExemplarRepository.findFirstExemplarAvailable(testBook.getId(), testReservation.getStartDate(), testReservation.getEndDate())).thenReturn(Optional.of(testBookExemplar));
 
         Assertions.assertThatThrownBy(() -> reservationService.reserveBook(testUser.getId(), testBook.getId(), testReservation))
                 .isInstanceOf(EntityAccountNotVerifiedException.class)
                 .hasMessageContaining("The user's account is not verified to perform this action");
-
     }
 
     @Test
-    public void testFindReservationsForALibraryByTimePeriod() {
+    public void givenTimePeriodAndLibraryId_findReservationsForALibraryByCriteria_ReturnContainsReservation() {
         Pageable testPage = PageRequest.of(0, 1);
         List<Reservation> testReservationList = List.of(testReservation);
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
-        Mockito.when(reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage)).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
+        Mockito.when(reservationService.findReservationsForALibraryByCriteria(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage)).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
 
-        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage);
+        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByCriteria(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage);
 
         Assertions.assertThat(reservationPage).contains(testReservation);
-        Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), testPage);
+        Mockito.verify(reservationRepository, Mockito.times(1)).findReservationsForALibraryByCriteria(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), testPage);
     }
 
     @Test
-    public void testFindReservationsForALibraryWhenLibraryDoesntExistThrowsException() {
+    public void givenWrongLibraryId_FindReservationsForALibraryByCriteria_ThrowException() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
+        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByCriteria(testLibrary.getId(), LocalDate.now(), LocalDate.now().plusDays(10), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Library with id %s not found".formatted(testLibrary.getId()));
 
@@ -171,47 +171,47 @@ public class ReservationTests {
     }
 
     @Test
-    public void testFindReservationsForALibraryWhenDatesDontMatchThrowsException() {
+    public void givenWrongTimePeriod_FindReservationsForALibraryByCriteria_ThrowException() {
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
 
-        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
+        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForALibraryByCriteria(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("startDate can't be after endDate");
-        Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForALibraryByTimePeriod(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), PageRequest.of(0, 1));
+        Mockito.verify(reservationRepository, Mockito.never()).findReservationsForALibraryByCriteria(testLibrary.getId(), LocalDate.now().plusDays(3), LocalDate.now(), List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), PageRequest.of(0, 1));
     }
 
     @Test
-    public void testFindReservationsForAUserByStatus() {
+    public void givenTimePeriodAndUserId_FindReservationsForAUserByCriteria_ReturnContainsReservation() {
         Pageable testPage = PageRequest.of(0, 1);
         List<Reservation> testReservationList = List.of(testReservation);
-        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        Mockito.when(reservationRepository.searchReservationsForAUserByReservationStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1))).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
+        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testUser));
+        Mockito.when(reservationRepository.findReservationsForAUserByCriteria(testUser.getId(), LocalDate.now(), LocalDate.now().plusDays(1), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1))).thenReturn(new PageImpl<>(testReservationList, testPage, testReservationList.size()));
 
-        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
+        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByCriteria(testUser.getId(), LocalDate.now(), LocalDate.now().plusDays(1), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
 
         Assertions.assertThat(reservationPage).contains(testReservation);
-        Mockito.verify(reservationRepository, Mockito.times(1)).searchReservationsForAUserByReservationStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
+        Mockito.verify(reservationRepository, Mockito.times(1)).findReservationsForAUserByCriteria(testUser.getId(), LocalDate.now(), LocalDate.now().plusDays(1), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
     }
 
     @Test
-    public void testFindReservationsForAUserByStatusWhenUserNotFoundThrowsException() {
+    public void givenWrongUser_FindReservationsForAUserByCriteria_ThrowException() {
         Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForAUserByStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
+        Assertions.assertThatThrownBy(() -> reservationService.findReservationsForAUserByCriteria(testUser.getId(), LocalDate.now(), LocalDate.now().plusDays(1), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1)))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User with id %s not found".formatted(testUser.getId()));
-        Mockito.verify(reservationRepository, Mockito.never()).searchReservationsForAUserByReservationStatus(testUser.getId(), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
+        Mockito.verify(reservationRepository, Mockito.never()).findReservationsForAUserByCriteria(testUser.getId(), LocalDate.now(), LocalDate.now().plusDays(1), List.of(ReservationStatus.PENDING), PageRequest.of(0, 1));
     }
 
     @Test
-    public void testFindAllReservations() {
+    public void givenNothing_FindAllReservations_VerifyCalledMethod() {
         reservationService.findAllReservations();
 
         Mockito.verify(reservationRepository, Mockito.times(1)).findAll();
     }
 
     @Test
-    public void testUpdateReservationStatus() {
+    public void givenReservationId_UpdateReservationStatus_ReturnReservation() {
         Long librarianId = 1L;
         ReservationStatus reservationStatus = ReservationStatus.IN_PROGRESS;
         testReservation.setReservationStatus(ReservationStatus.PENDING);
@@ -226,7 +226,7 @@ public class ReservationTests {
     }
 
     @Test
-    public void testUpdateReservationStatusWhenReservationNotFoundThrowsException() {
+    public void givenWrongReservationId_UpdateReservationStatus_ThrowException() {
         Long librarianId = 1L;
         Mockito.when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.empty());
 
@@ -236,7 +236,7 @@ public class ReservationTests {
     }
 
     @Test
-    public void testUpdateReservationStatusWhenLibrarianDoesntHaveAccessThrowsException() {
+    public void givenWrongLibrarianId_UpdateReservationStatus_ThrowException() {
         testReservation.getReservedExemplar().getBook().getLibrary().getLibrarian().setId(1L);
         Mockito.when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
 
@@ -246,7 +246,7 @@ public class ReservationTests {
     }
 
     @Test
-    public void testUpdateReservationStatusWhenStatusIsNotPossibleThrowsException() {
+    public void givenIncorrectStatus_UpdateReservationStatus_ThrowException() {
         Long librarianId = 1L;
         testReservation.setReservationStatus(ReservationStatus.PENDING);
         Mockito.when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
