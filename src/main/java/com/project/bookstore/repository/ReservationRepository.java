@@ -14,29 +14,31 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE reservation.reservationStatus = :reservationStatus
-            AND reservation.startDate < :now
+            AND reservation.startDate <= :date
             """)
-    List<Reservation> findByStartDateOlderThanAndStatus(LocalDate now, ReservationStatus reservationStatus);
+    List<Reservation> findByStartDateOlderThanAndStatus(LocalDate date, ReservationStatus reservationStatus);
 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE reservation.reservationStatus = :reservationStatus
-            AND  reservation.endDate < :now
+            AND  reservation.endDate <= :date
             """)
-    List<Reservation> findByEndDateOlderThanAndStatus(LocalDate now, ReservationStatus reservationStatus);
+    List<Reservation> findByEndDateOlderThanAndStatus(LocalDate date, ReservationStatus reservationStatus);
 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE (reservation.startDate >= :startDate AND reservation.endDate <= :endDate)
-            AND reservation.reservationStatus IN :reservationStatusList
+            AND (:reservationStatusList IS NULL OR reservation.reservationStatus IN :reservationStatusList)
             AND reservation.reservedExemplar.book.library.id = :libraryId
             """)
-    Page<Reservation> searchReservationsForALibraryByTimePeriod(Long libraryId, LocalDate startDate, LocalDate endDate, List<ReservationStatus> reservationStatusList, Pageable pageable);
+    Page<Reservation> findReservationsForALibraryByCriteria(Long libraryId, LocalDate startDate, LocalDate endDate, List<ReservationStatus> reservationStatusList, Pageable pageable);
 
     @Query("""
             SELECT reservation FROM reservation reservation
             WHERE reservation.reservedUser.id = :userId
-            AND reservation.reservationStatus = :reservationStatus
+            AND (cast (:startDate AS date) IS NULL OR reservation.startDate >= :startDate)
+            AND (cast (:endDate AS date) IS NULL OR reservation.endDate <= :endDate)
+            AND (:reservationStatusList IS NULL OR reservation.reservationStatus IN :reservationStatusList)
             """)
-    Page<Reservation> searchReservationsForAUserByReservationStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable);
+    Page<Reservation> findReservationsForAUserByCriteria(Long userId, LocalDate startDate, LocalDate endDate, List<ReservationStatus> reservationStatusList, Pageable pageable);
 }

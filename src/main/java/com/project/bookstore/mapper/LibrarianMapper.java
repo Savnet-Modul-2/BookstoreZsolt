@@ -18,7 +18,7 @@ public class LibrarianMapper {
         librarian.setId(librarianDto.getId());
         librarian.setName(librarianDto.getName());
         librarian.setEmail(librarianDto.getEmail());
-        librarian.setPassword(PasswordEncryptor.encryptUserPasswordWithSHA256(librarianDto.getPassword()));
+        librarian.setPassword(PasswordEncryptor.encryptPasswordWithSHA256(librarianDto.getPassword()));
         librarian.setLibrary(libraryMapper.mapLibraryFromLibraryDto(librarianDto.getLibrary()));
         librarian.setVerifiedAccount(librarianDto.isVerifiedAccount());
         librarian.setVerificationCode(librarianDto.getVerificationCode());

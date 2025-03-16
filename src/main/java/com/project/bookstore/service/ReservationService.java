@@ -36,7 +36,7 @@ public class ReservationService {
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookId)));
         BookExemplar bookExemplar = bookExemplarRepository.findFirstExemplarAvailable(foundBook.getId(), reservation.getStartDate(), reservation.getEndDate())
                 .orElseThrow(() -> new BookExemplarNotAvailableException("Book exemplar cannot be reserved for the given period"));
-        if (reservation.getEndDate().isBefore(reservation.getStartDate().plusDays(bookExemplar.getMaximumReservationDuration()))) {
+        if (reservation.getStartDate().plusDays(bookExemplar.getMaximumReservationDuration()).isBefore(reservation.getEndDate())) {
             throw new MaximumReservationDurationExceededException("The number of days for the exemplar to be reserved has exceeded the reservable duration of days");
         }
         if (!foundUser.isVerifiedAccount()) {
@@ -49,19 +49,19 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public Page<Reservation> findReservationsForALibraryByTimePeriod(Long libraryId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<Reservation> findReservationsForALibraryByCriteria(Long libraryId, LocalDate startDate, LocalDate endDate, List<ReservationStatus> reservationStatusList, Pageable pageable) {
         Library foundLibrary = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Library with id %s not found".formatted(libraryId)));
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("startDate can't be after endDate");
         }
-        return reservationRepository.searchReservationsForALibraryByTimePeriod(foundLibrary.getId(), startDate, endDate, List.of(ReservationStatus.PENDING, ReservationStatus.DELAYED, ReservationStatus.IN_PROGRESS), pageable);
+        return reservationRepository.findReservationsForALibraryByCriteria(foundLibrary.getId(), startDate, endDate, reservationStatusList, pageable);
     }
 
-    public Page<Reservation> findReservationsForAUserByStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable) {
+    public Page<Reservation> findReservationsForAUserByCriteria(Long userId, LocalDate startDate, LocalDate endDate, List<ReservationStatus> reservationStatusList, Pageable pageable) {
         User foundUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
-        return reservationRepository.searchReservationsForAUserByReservationStatus(foundUser.getId(), reservationStatus, pageable);
+        return reservationRepository.findReservationsForAUserByCriteria(foundUser.getId(), startDate, endDate, reservationStatusList, pageable);
     }
 
     public List<Reservation> findAllReservations() {

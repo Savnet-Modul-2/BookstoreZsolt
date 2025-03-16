@@ -1,5 +1,6 @@
 package com.project.bookstore.service;
 
+import com.project.bookstore.entity.Librarian;
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
@@ -29,6 +30,7 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new EntityExistsException("User with the email address %s already exists".formatted(user.getEmail()));
         }
+        System.out.println(Thread.currentThread().getName());
         String userVerificationCode = CodeGenerator.generateCode();
         user.setVerificationCode(userVerificationCode);
         user.setVerificationCodeTime(LocalDateTime.now());
@@ -65,7 +67,7 @@ public class UserService {
         if (!user.isVerifiedAccount()) {
             throw new EntityAccountNotVerifiedException("This account is not yet verified");
         }
-        if (!user.getPassword().equals(PasswordEncryptor.encryptUserPasswordWithSHA256(userPassword))) {
+        if (!user.getPassword().equals(PasswordEncryptor.encryptPasswordWithSHA256(userPassword))) {
             throw new EntityBadCredentialsException("Couldn't login to the account with the provided password");
         }
         return user.getId();
@@ -84,5 +86,19 @@ public class UserService {
                         reservation.getReservedExemplar().getBook().getLibrary().getName(),
                         reservation.getReservedExemplar().getBook().getLibrary().getCity())
         )));
+    }
+
+    public String sendVerificationCodeEmail(String userEmail) {
+        User foundUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with email %s not found".formatted(userEmail)));
+        Duration duration = Duration.between(foundUser.getVerificationCodeTime(), LocalDateTime.now());
+        if (duration.toMinutes() > 50) {
+            String newCode = CodeGenerator.generateCode();
+            foundUser.setVerificationCode(newCode);
+            foundUser.setVerificationCodeTime(LocalDateTime.now());
+            userRepository.save(foundUser);
+        }
+        emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundUser.getVerificationCode())));
+        return EmailDetails.EMAIL_SENT_SUCCESSFULLY;
     }
 }

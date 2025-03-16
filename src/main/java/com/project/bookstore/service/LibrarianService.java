@@ -2,6 +2,7 @@ package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
 import com.project.bookstore.entity.Reservation;
+import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.*;
 import com.project.bookstore.helper.CodeGenerator;
 import com.project.bookstore.helper.EmailDetails;
@@ -66,7 +67,7 @@ public class LibrarianService {
         if (!librarian.isVerifiedAccount()) {
             throw new EntityAccountNotVerifiedException("This account is not yet verified");
         }
-        if (!librarian.getPassword().equals(PasswordEncryptor.encryptUserPasswordWithSHA256(librarianPassword))) {
+        if (!librarian.getPassword().equals(PasswordEncryptor.encryptPasswordWithSHA256(librarianPassword))) {
             throw new EntityBadCredentialsException("Couldn't login to the account with the provided password");
         }
         return librarian.getId();
@@ -87,5 +88,20 @@ public class LibrarianService {
                         reservation.getReservedUser().getPhoneNumber())
         )));
     }
+
+    public String sendVerificationCodeEmail(String librarianEmail) {
+        Librarian foundLibrarian = librarianRepository.findByEmail(librarianEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with email %s not found".formatted(librarianEmail)));
+        Duration duration = Duration.between(foundLibrarian.getVerificationCodeTime(), LocalDateTime.now());
+        if (duration.toMinutes() > 50) {
+            String newCode = CodeGenerator.generateCode();
+            foundLibrarian.setVerificationCode(newCode);
+            foundLibrarian.setVerificationCodeTime(LocalDateTime.now());
+            librarianRepository.save(foundLibrarian);
+        }
+        emailService.sendEmail(new EmailDetails(foundLibrarian.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundLibrarian.getVerificationCode())));
+        return EmailDetails.EMAIL_SENT_SUCCESSFULLY;
+    }
 }
+
 

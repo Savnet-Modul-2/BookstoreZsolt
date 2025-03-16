@@ -39,8 +39,8 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testFindById() {
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+    public void givenLibrarianId_FindById_ReturnLibrarian() {
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrary));
 
         Library foundLibrary = libraryService.findById(testLibrary.getId());
         AssertionsForClassTypes.assertThat(foundLibrary).isEqualTo(testLibrary);
@@ -49,25 +49,25 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testFindByIdThrowsException() {
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
+    public void givenWrongLibrarianId_FindById_ThrowException() {
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> libraryService.findById(testLibrary.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
-    public void testFindAll() {
+    public void givenNothing_FindAll_VerifyCalledMethod() {
         libraryService.findAll();
 
         Mockito.verify(libraryRepository).findAll();
     }
 
     @Test
-    public void testAddBookToLibraryWhenLibrarianIsVerified() {
+    public void givenBookAndVerifiedAccount_AddBookToLibrary_ReturnContainsBook() {
         Book testBook = new Book();
         testLibrary.getLibrarian().setVerifiedAccount(true);
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrary));
 
         libraryService.addBookToLibrary(testLibrary.getId(), testBook);
         ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
@@ -78,10 +78,9 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testAddBookToLibraryWhenLibrarianIsNotVerifiedThrowsException() {
+    public void givenBookAndUnverifiedAccount_AddBookToLibrary_ThrowException() {
         Book testBook = new Book();
-
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrary));
 
         Assertions.assertThatThrownBy(() -> libraryService.addBookToLibrary(testLibrary.getId(), testBook))
                 .isInstanceOf(EntityNotVerifiedException.class)
@@ -90,9 +89,9 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testAddBookToWrongLibraryIdThrowsException() {
+    public void givenWrongLibraryId_AddBookToLibrary_ThrowException() {
         Book testBook = new Book();
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.empty());
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> libraryService.addBookToLibrary(testLibrary.getId(), testBook))
                 .isInstanceOf(EntityNotFoundException.class);
@@ -100,11 +99,11 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testAddExistingBookToLibrary() {
+    public void givenExistingBook_AddExistingBookToLibrary_ReturnContainsBook() {
         Book testBook = new Book();
         testLibrary.getLibrarian().setVerifiedAccount(true);
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrary));
 
         libraryService.addExistingBookToLibrary(testLibrary.getId(), testBook.getId());
         ArgumentCaptor<Library> libraryArgumentCaptor = ArgumentCaptor.forClass(Library.class);
@@ -115,10 +114,10 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testAddExistingBookToLibraryWhenLibrarianIsNotVerifiedThrowsException() {
+    public void givenBookAndUnverifiedAccount_AddExistingBookToLibrary_ThrowException() {
         Book testBook = new Book();
         Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
-        Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
+        Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrary));
 
         Assertions.assertThatThrownBy(() -> libraryService.addExistingBookToLibrary(testLibrary.getId(), testBook.getId()))
                 .isInstanceOf(EntityNotVerifiedException.class)
@@ -126,7 +125,7 @@ public class LibraryServiceTests {
     }
 
     @Test
-    public void testUpdatingLibrary() {
+    public void givenLibrary_UpdateLibrary_ReturnLibrary() {
         Library newLibrary = new Library();
         newLibrary.setId(1L);
         newLibrary.setName("newLibraryName");

@@ -82,6 +82,14 @@ public class UserController {
         return ResponseEntity.ok(id);
     }
 
+    @PutMapping
+    public ResponseEntity<?> resendVerificationCodeEmail(@RequestBody Map<String, String> emailMap) {
+        if (!emailMap.containsKey("userEmail")) {
+            throw new RequestBodyMapKeyNotFoundException("Missing userEmail property");
+        }
+        return ResponseEntity.ok(userService.sendVerificationCodeEmail(emailMap.get("userEmail")));
+    }
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUserById(@PathVariable(name = "userId") Long userId) {
         userService.deleteById(userId);

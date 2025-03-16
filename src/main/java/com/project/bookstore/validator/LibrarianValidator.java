@@ -34,20 +34,10 @@ public class LibrarianValidator implements Validator {
         } else if (!Pattern.matches(EMAIL_PATTERN, librarianDto.getEmail())) {
             errors.rejectValue("email", "email.invalid", "Invalid email format");
         }
-
         if (librarianDto.getLibrary() == null) {
             errors.rejectValue("library", "library.null", "library cannot be null");
         } else {
             libraryValidator.validate(librarianDto.getLibrary(), errors);
-/*
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "library.name", "library.name.required", "library name field is required");
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "library.city", "library.city.required", "library city field is required");
-
-            if (librarianDto.getLibrary().getPhoneNumber().isEmpty()) {
-                ValidationUtils.rejectIfEmptyOrWhitespace(errors, "library.phoneNumber", "library.phoneNumber", "library phoneNumber field is required");
-            } else if (!Pattern.matches(PHONE_NUMBER_PATTERN, librarianDto.getLibrary().getPhoneNumber())) {
-                errors.rejectValue("library.phoneNumber", "library.phoneNumber.invalid", "Invalid library phoneNumber format");
-            }*/
         }
     }
 }

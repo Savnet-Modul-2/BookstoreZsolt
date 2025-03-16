@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testBookIsCreated() {
+    public void givenBook_CreateBook_ReturnBook() {
         bookService.createBook(testBook);
 
         ArgumentCaptor<Book> bookArgumentCaptor = ArgumentCaptor.forClass(Book.class);
@@ -55,7 +56,7 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testAddBookToLibrary() {
+    public void givenLibraryId_AddBookToLibrary_ReturnBook() {
         Library testLibrary = new Library();
         testLibrary.setId(1L);
         Mockito.when(libraryRepository.findById(testLibrary.getId())).thenReturn(Optional.of(testLibrary));
@@ -69,7 +70,7 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testAddBookToWrongLibraryIdThrowsException() {
+    public void givenWrongLibraryId_AddBookToLibrary_ThrowException() {
         Mockito.when(libraryRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> bookService.addBookToLibrary(Mockito.anyLong(), testBook))
@@ -78,8 +79,8 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testFindById() {
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.of(testBook));
+    public void givenBookId_FindById_ReturnBook() {
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testBook));
 
         Book foundBook = bookService.findById(testBook.getId());
 
@@ -88,8 +89,8 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testFindByIdThrowsException() {
-        Mockito.when(bookRepository.findById(testBook.getId())).thenReturn(Optional.empty());
+    public void givenWrongBookId_FindById_ThrowException() {
+        Mockito.when(bookRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> bookService.findById(testBook.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
@@ -97,21 +98,32 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testFindAllBooks() {
+    public void givenNothing_FindAll_VerifyCalledMethod() {
         bookService.findAll();
 
         Mockito.verify(bookRepository).findAll();
     }
 
     @Test
-    public void testDeleteById() {
+    public void givenPagination_FindAll_VerifyMethodCalled() {
+        Pageable testPage = PageRequest.of(0, testBookList.size());
+        Mockito.when(bookRepository.findAll(testPage))
+                .thenReturn(new PageImpl<>(testBookList, testPage, testBookList.size()));
+
+        bookService.findAll(testPage);
+
+        Mockito.verify(bookRepository).findAll(testPage);
+    }
+
+    @Test
+    public void givenBookId_DeleteById_VerifyCalledMethod() {
         bookService.deleteById(testBook.getId());
 
         Mockito.verify(bookRepository).deleteById(testBook.getId());
     }
 
     @Test
-    public void testBookShouldBeUpdated() {
+    public void givenBook_UpdateBook_ReturnBook() {
         Book newBook = new Book();
         newBook.setId(1L);
         newBook.setTitle("newTestTitle");
@@ -127,24 +139,26 @@ public class BookServiceTests {
     }
 
     @Test
-    public void testFindAllBooksPaginated() {
+    public void givenPagination_FindAll_ReturnIsNotEmpty() {
         Pageable testPage = PageRequest.of(0, testBookList.size());
         Mockito.when(bookRepository.findAll(testPage))
                 .thenReturn(new PageImpl<>(testBookList, testPage, testBookList.size()));
 
-        bookService.findAll(testPage);
+        Page<Book> page = bookRepository.findAll(testPage);
 
+        Assertions.assertThat(page).isNotEmpty();
         Mockito.verify(bookRepository).findAll(testPage);
     }
 
     @Test
-    public void testFindBooksByTitleAndAuthor() {
+    public void givenTitleAndAuthor_FindBooks_ReturnIsNotEmpty() {
         Pageable testPage = PageRequest.of(0, testBookList.size());
         Mockito.when(bookRepository.findBooks(testBook.getTitle(), testBook.getAuthor(), testPage))
                 .thenReturn(new PageImpl<>(testBookList, testPage, testBookList.size()));
 
-        bookService.findBooks(testBook.getTitle(), testBook.getAuthor(), testPage);
+        Page<Book> page = bookService.findBooks(testBook.getTitle(), testBook.getAuthor(), testPage);
 
+        Assertions.assertThat(page).isNotEmpty();
         Mockito.verify(bookRepository).findBooks(testBook.getTitle(), testBook.getAuthor(), testPage);
     }
 }

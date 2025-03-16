@@ -11,7 +11,7 @@ public class Reservation {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "start_date")
     private LocalDate startDate;
     @Column(name = "end_date")
@@ -26,11 +26,11 @@ public class Reservation {
             fetch = FetchType.LAZY)
     private BookExemplar reservedExemplar;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

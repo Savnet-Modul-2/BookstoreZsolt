@@ -1,6 +1,7 @@
 package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.ReservationDto;
+import com.project.bookstore.dto.ReservationStatusFilterDto;
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.types.ReservationStatus;
 import com.project.bookstore.exceptions.EntityValidationException;
@@ -18,7 +19,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public class ReservationController {
     @Autowired
     private ReservationValidator reservationValidator;
 
-    @InitBinder({"reservationDto"})
+    @InitBinder({"reservationDto", "reservationStatusFilterDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(reservationValidator);
     }
@@ -59,32 +59,36 @@ public class ReservationController {
     }
 
     @GetMapping("/library/{libraryId}")
-    public ResponseEntity<?> getAllReservationsForALibraryByTimePeriod(@PathVariable(name = "libraryId") Long libraryId,
-                                                                       @RequestParam(name = "pageSize") Integer pageSize,
-                                                                       @RequestParam(name = "pageNumber") Integer pageNumber,
-                                                                       @RequestBody Map<String, String> timePeriodMap) {
-        if (pageSize == null || pageNumber == null) {
-            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
+    public ResponseEntity<?> getAllReservationsForALibraryByCriteria(@PathVariable(name = "libraryId") Long libraryId,
+                                                                     @RequestParam(name = "pageSize") Integer pageSize,
+                                                                     @RequestParam(name = "pageNumber") Integer pageNumber,
+                                                                     @Valid @RequestBody ReservationStatusFilterDto reservationStatusFilterDto,
+                                                                     BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorMap = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMap.put(error.getField(), error.getDefaultMessage());
+            }
+            throw new EntityValidationException(errorMap);
         }
-        if (!timePeriodMap.containsKey("startDate") || !timePeriodMap.containsKey("endDate")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing key on the request body");
-        }
-        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByTimePeriod(libraryId, LocalDate.parse(timePeriodMap.get("startDate")), LocalDate.parse(timePeriodMap.get("endDate")), PageRequest.of(pageNumber, pageSize));
+        Page<Reservation> reservationPage = reservationService.findReservationsForALibraryByCriteria(libraryId, reservationStatusFilterDto.getStartDate(), reservationStatusFilterDto.getEndDate(), reservationStatusFilterDto.getReservationStatusList(), PageRequest.of(pageNumber, pageSize));
         return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getAllReservationsForAUserByStatus(@PathVariable(name = "userId") Long userId,
-                                                                @RequestParam(name = "pageSize") Integer pageSize,
-                                                                @RequestParam(name = "pageNumber") Integer pageNumber,
-                                                                @RequestBody Map<String, String> statusMap) {
-        if (pageSize == null || pageNumber == null) {
-            throw new IllegalArgumentException("Missing pageSize and/or pageNumber values");
+    public ResponseEntity<?> getAllReservationsForAUserByCriteria(@PathVariable(name = "userId") Long userId,
+                                                                  @RequestParam(name = "pageSize") Integer pageSize,
+                                                                  @RequestParam(name = "pageNumber") Integer pageNumber,
+                                                                  @Valid @RequestBody ReservationStatusFilterDto reservationStatusFilterDto,
+                                                                  BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorMap = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMap.put(error.getField(), error.getDefaultMessage());
+            }
+            throw new EntityValidationException(errorMap);
         }
-        if (!statusMap.containsKey("reservationStatus")) {
-            throw new RequestBodyMapKeyNotFoundException("Missing reservationStatus property");
-        }
-        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByStatus(userId, ReservationStatus.valueOf(statusMap.get("reservationStatus")), PageRequest.of(pageNumber, pageSize));
+        Page<Reservation> reservationPage = reservationService.findReservationsForAUserByCriteria(userId, reservationStatusFilterDto.getStartDate(), reservationStatusFilterDto.getEndDate(), reservationStatusFilterDto.getReservationStatusList(), PageRequest.of(pageNumber, pageSize));
         return ResponseEntity.ok(reservationPage.map(reservation -> reservationMapper.mapReservationDtoFromReservation(reservation)));
     }
 

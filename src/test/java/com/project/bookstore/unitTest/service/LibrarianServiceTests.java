@@ -1,9 +1,10 @@
 package com.project.bookstore.unitTest.service;
 
-import com.project.bookstore.entity.Librarian;
+import com.project.bookstore.entity.*;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
 import com.project.bookstore.exceptions.EntityAccountNotVerifiedException;
 import com.project.bookstore.exceptions.EntityBadCredentialsException;
+import com.project.bookstore.helper.PasswordEncryptor;
 import com.project.bookstore.repository.LibrarianRepository;
 import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.LibrarianService;
@@ -12,7 +13,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -40,12 +40,13 @@ public class LibrarianServiceTests {
         testLibrarian.setId(1L);
         testLibrarian.setVerificationCode("testVerificationCode");
         testLibrarian.setVerificationCodeTime(LocalDateTime.now());
-        testLibrarian.setPassword("testPassword");
+        testLibrarian.setPassword(PasswordEncryptor.encryptPasswordWithSHA256("testPassword"));
         testLibrarian.setEmail("testEmail@gmail.com");
     }
 
     @Test
-    public void testLibrarianIsCreated() {
+    public void givenLibrarian_CreateLibrarian_ReturnLibrarian() {
+        Mockito.when(librarianRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
         librarianService.createLibrarian(testLibrarian);
 
         ArgumentCaptor<Librarian> librarianArgumentCaptor = ArgumentCaptor.forClass(Librarian.class);
@@ -56,8 +57,8 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testLibrarianEmilExistsThrowsException() {
-        Mockito.when(librarianRepository.existsByEmail(testLibrarian.getEmail())).thenReturn(true);
+    public void givenEmail_ExistsByEmail_ThrowException() {
+        Mockito.when(librarianRepository.existsByEmail(Mockito.anyString())).thenReturn(true);
 
         Assertions.assertThatThrownBy(() -> librarianService.createLibrarian(testLibrarian))
                 .isInstanceOf(EntityExistsException.class)
@@ -66,8 +67,8 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testFindById() {
-        Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
+    public void givenLibrarianId_FindById_ReturnLibrarian() {
+        Mockito.when(librarianRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrarian));
 
         Librarian foundLibrarian = librarianService.findById(testLibrarian.getId());
         AssertionsForClassTypes.assertThat(foundLibrarian).isEqualTo(testLibrarian);
@@ -76,8 +77,8 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testFindByIdThrowsException() {
-        Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.empty());
+    public void givenWrongId_FindById_ThrowException() {
+        Mockito.when(librarianRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> librarianService.findById(testLibrarian.getId()))
                 .isInstanceOf(EntityNotFoundException.class);
@@ -85,22 +86,22 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testFindAll() {
+    public void givenNothing_FindAll_VerifyCalledMethod() {
         librarianService.findAll();
 
         Mockito.verify(librarianRepository).findAll();
     }
 
     @Test
-    public void testDeleteById() {
+    public void givenLibrarianId_DeleteById_VerifyCalledMethod() {
         librarianService.deleteById(testLibrarian.getId());
 
         Mockito.verify(librarianRepository).deleteById(testLibrarian.getId());
     }
 
     @Test
-    public void testVerifyLibrarianCodeWithLibrarianFound() {
-        Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
+    public void givenLibrarianIdAndCode_VerifyLibrarian_ReturnVerifiedAccount() {
+        Mockito.when(librarianRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrarian));
 
         librarianService.verifyLibrarian(testLibrarian.getId(), testLibrarian.getVerificationCode());
 
@@ -110,28 +111,30 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testVerifyLibrarianCodeNotEqualThrowException() {
+    public void givenWrongCode_VerifyLibrarian_ThrowException() {
         String errorVerificationCode = "errorVerificationCode";
-        Mockito.when(librarianRepository.findById(testLibrarian.getId())).thenReturn(Optional.of(testLibrarian));
+        Mockito.when(librarianRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testLibrarian));
 
         Assertions.assertThatThrownBy(() -> librarianService.verifyLibrarian(testLibrarian.getId(), errorVerificationCode))
                 .isInstanceOf(CodeExpirationTimeException.class)
                 .hasMessageContaining("The time for code verification has expired");
     }
 
-    //TODO: Check to make this test run
     @Test
-    @Disabled
-    public void testGetLibrarianIdAfterLogin() {
-        Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
+    public void givenEmailAndPassword_GetLibrarianIdAfterLogin_ReturnLibrarianId() {
+        String testPassword = "testPassword";
+        Mockito.when(librarianRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(testLibrarian));
         testLibrarian.setVerifiedAccount(true);
-        Long testId = librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), testLibrarian.getPassword());
+
+        Long testId = librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), testPassword);
+
         Assertions.assertThat(testId).isEqualTo(testLibrarian.getId());
     }
 
     @Test
-    public void testGetUserIdAfterLoginWhenNotVerifiedThrowException() {
+    public void givenNotVerifiedAccount_GetLibrarianIdAfterLogin_ThrowException() {
         Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
+
         Assertions.assertThat(testLibrarian.isVerifiedAccount()).isFalse();
         Assertions.assertThatThrownBy(() -> librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), testLibrarian.getPassword()))
                 .isInstanceOf(EntityAccountNotVerifiedException.class)
@@ -139,17 +142,12 @@ public class LibrarianServiceTests {
     }
 
     @Test
-    public void testGetUserIdAfterLoginWhenBadCredentialsException() {
+    public void givenWrongPassword_GetLibrarianIdAfterLogin_ThrowException() {
         String errorPassword = "errorPassword";
         Mockito.when(librarianRepository.findByEmail(testLibrarian.getEmail())).thenReturn(Optional.of(testLibrarian));
         testLibrarian.setVerifiedAccount(true);
         Assertions.assertThatThrownBy(() -> librarianService.getLibrarianIdAfterLogin(testLibrarian.getEmail(), errorPassword))
                 .isInstanceOf(EntityBadCredentialsException.class)
                 .hasMessageContaining("Couldn't login to the account with the provided password");
-    }
-
-    //TODO: check if sendDelayedReservationEmail can be tested
-    @Test
-    public void testSendDelayedReservationEmail() {
     }
 }

@@ -32,26 +32,26 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void testShouldFindUserByEmail() {
+    public void givenEmail_FindByEmail_ReturnUser() {
         String testEmail = "test@gmail.com";
 
         userRepository.save(testUser);
-        boolean expected = userRepository.findByEmail(testEmail).isPresent();
+        User expected = userRepository.findByEmail(testEmail).orElse(null);
 
-        Assertions.assertThat(expected).isTrue();
+        Assertions.assertThat(expected).isEqualTo(testUser);
     }
 
     @Test
-    public void testShouldNotFindUserByEmail() {
+    public void givenNothing_FindByEmail_ReturnNull() {
         String testEmail = "test@gmail.com";
 
-        boolean expected = userRepository.findByEmail(testEmail).isPresent();
+        User expected = userRepository.findByEmail(testEmail).orElse(null);
 
-        Assertions.assertThat(expected).isFalse();
+        Assertions.assertThat(expected).isNull();
     }
 
     @Test
-    public void testShouldFindLibrarianByEmailIfExists() {
+    public void givenEmail_ExistsByEmail_ReturnTrue() {
         String testEmail = "test@gmail.com";
 
         userRepository.save(testUser);
@@ -61,7 +61,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void testShouldNotFindLibrarianByEmailNotExists() {
+    public void givenNothing_ExistsByEmail_ReturnFalse() {
         String testEmail = "test@gmail.com";
 
         boolean expected = userRepository.existsByEmail(testEmail);

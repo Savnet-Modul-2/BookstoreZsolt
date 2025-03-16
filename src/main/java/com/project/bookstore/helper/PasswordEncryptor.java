@@ -10,10 +10,9 @@ public class PasswordEncryptor {
     private PasswordEncryptor() {
     }
 
-    public static String encryptUserPasswordWithSHA256(String userPassword) {
-        MessageDigest messageDigest = null;
+    public static String encryptPasswordWithSHA256(String userPassword) {
         try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] encodedHash = messageDigest.digest(userPassword.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder(2 * encodedHash.length);
             for (byte hash : encodedHash) {

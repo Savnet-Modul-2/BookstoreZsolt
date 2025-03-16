@@ -34,27 +34,27 @@ public class BookRepositoryTest {
     }
 
     @Test
-    public void testFindBookByTitle() {
+    public void givenTitle_FindBooks_ReturnNotEmpty() {
         String testTitle = "testTitle";
-
         bookRepository.save(testBook);
+
         Page<Book> testBookPage = bookRepository.findBooks(testTitle, null, PageRequest.of(0, 1));
 
         Assertions.assertThat(testBookPage).isNotEmpty();
     }
 
     @Test
-    public void testFindBookByAuthor() {
+    public void givenAuthor_FindBooks_ReturnNotEmpty() {
         String testAuthor = "testAuthor";
-
         bookRepository.save(testBook);
+
         Page<Book> testBookPage = bookRepository.findBooks(null, testAuthor, PageRequest.of(0, 1));
 
         Assertions.assertThat(testBookPage).isNotEmpty();
     }
 
     @Test
-    public void testFindBookByReturnsEmpty() {
+    public void givenNothing_FindBooks_ReturnEmpty() {
         Page<Book> testBookPage = bookRepository.findBooks(null, null, PageRequest.of(0, 1));
 
         Assertions.assertThat(testBookPage).isEmpty();
