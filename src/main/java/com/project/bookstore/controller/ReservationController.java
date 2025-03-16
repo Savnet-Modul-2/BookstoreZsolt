@@ -8,6 +8,7 @@ import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
 import com.project.bookstore.mapper.ReservationMapper;
 import com.project.bookstore.service.ReservationService;
+import com.project.bookstore.validator.ReservationStatusFilterValidator;
 import com.project.bookstore.validator.ReservationValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,12 @@ public class ReservationController {
     private ReservationMapper reservationMapper;
     @Autowired
     private ReservationValidator reservationValidator;
+    @Autowired
+    private ReservationStatusFilterValidator reservationStatusFilterValidator;
 
     @InitBinder({"reservationDto", "reservationStatusFilterDto"})
     protected void initBinder(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(reservationValidator);
+        webDataBinder.addValidators(reservationValidator, reservationStatusFilterValidator);
     }
 
     @PostMapping("/{userId}/{bookId}")
