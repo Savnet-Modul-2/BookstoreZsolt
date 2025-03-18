@@ -2,6 +2,7 @@ package com.project.bookstore.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,13 @@ public class BookExemplar {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
+
     @Column(name = "publisher")
     private String publisher;
     @Column(name = "maximumReservationDuration")
@@ -23,7 +31,6 @@ public class BookExemplar {
             fetch = FetchType.LAZY,
             mappedBy = "reservedExemplar")
     private List<Reservation> reservations = new ArrayList<>();
-
     public Long getId() {
         return id;
     }
@@ -62,5 +69,13 @@ public class BookExemplar {
 
     public void setReservations(List<Reservation> reservations) {
         this.reservations = reservations;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }
