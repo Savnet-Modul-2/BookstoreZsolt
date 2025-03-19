@@ -16,10 +16,8 @@ public class BookExemplar {
     @Version
     @Column(name = "version")
     private Integer version;
-
     @Column(name = "update_time")
     private LocalDateTime updateTime;
-
     @Column(name = "publisher")
     private String publisher;
     @Column(name = "maximumReservationDuration")
@@ -31,6 +29,7 @@ public class BookExemplar {
             fetch = FetchType.LAZY,
             mappedBy = "reservedExemplar")
     private List<Reservation> reservations = new ArrayList<>();
+
     public Long getId() {
         return id;
     }

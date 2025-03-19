@@ -49,7 +49,7 @@ public class UserService {
 
     public User verifyUserCode(Long id, String code) {
         User user = userRepository.findById(id)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(id)));
         Duration duration = Duration.between(user.getVerificationCodeTime(), LocalDateTime.now());
         if (user.getVerificationCode().equals(code) && duration.toMinutes() < 60) {
             user.setVerifiedAccount(true);
@@ -90,7 +90,7 @@ public class UserService {
 
     public String sendVerificationCodeEmail(String userEmail) {
         User foundUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException("Librarian with email %s not found".formatted(userEmail)));
+                .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(userEmail)));
         Duration duration = Duration.between(foundUser.getVerificationCodeTime(), LocalDateTime.now());
         if (duration.toMinutes() > 50) {
             String newCode = CodeGenerator.generateCode();
