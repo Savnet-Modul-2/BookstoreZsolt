@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,6 +46,7 @@ public class ReservationService {
         reservation.setReservationStatus(ReservationStatus.PENDING);
         reservation.setReservedUser(foundUser);
         reservation.setReservedExemplar(bookExemplar);
+        bookExemplar.setUpdateTime(LocalDateTime.now());
         emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.RESERVATION_CONFIRMATION_EMAIL_SUBJECT, EmailDetails.RESERVATION_CONFIRMATION_EMAIL_BODY.formatted(foundBook.getTitle(), foundBook.getLibrary().getName(), foundBook.getLibrary().getCity(), reservation.getStartDate())));
         return reservationRepository.save(reservation);
     }

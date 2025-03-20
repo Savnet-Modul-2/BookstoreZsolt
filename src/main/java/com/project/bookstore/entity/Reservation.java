@@ -12,6 +12,9 @@ public class Reservation {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Version
+    @Column(name = "version")
+    private Integer version;
     @Column(name = "start_date")
     private LocalDate startDate;
     @Column(name = "end_date")
