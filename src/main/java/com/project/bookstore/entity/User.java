@@ -36,10 +36,6 @@ public class User {
     private String verificationCode;
     @Column(name = "verificationCodeTime")
     private LocalDateTime verificationCodeTime;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
-            fetch = FetchType.LAZY,
-            mappedBy = "reservedUser")
-    private List<Reservation> reservations = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -48,6 +44,23 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            mappedBy = "reservedUser")
+    private List<Reservation> reservations = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
+    @JoinTable(name = "user_libraries", schema = "public",
+            joinColumns = @JoinColumn(name = "app_user_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "library_id", nullable = false))
+    private List<Library> favouriteLibraries = new ArrayList<>();
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            mappedBy = "reviewerUser")
+    private List<Reviews> userReviews = new ArrayList<>();
 
     public String getFirstName() {
         return firstName;
@@ -143,5 +156,34 @@ public class User {
 
     public void setReservations(List<Reservation> reservations) {
         this.reservations = reservations;
+    }
+
+    public List<Library> getFavouriteLibraries() {
+        return favouriteLibraries;
+    }
+
+    public void setFavouriteLibraries(List<Library> favouriteLibraries) {
+        this.favouriteLibraries = favouriteLibraries;
+    }
+
+    public void addLibraryToFavourites(Library library) {
+        this.favouriteLibraries.add(library);
+    }
+
+    public void removeLibraryFromFavourites(Library library) {
+        favouriteLibraries.remove(library);
+    }
+
+    public List<Reviews> getUserReviews() {
+        return userReviews;
+    }
+
+    public void setUserReviews(List<Reviews> userReviews) {
+        this.userReviews = userReviews;
+    }
+
+    public void addReview(Reviews reviews) {
+        this.userReviews.add(reviews);
+        reviews.setReviewerUser(this);
     }
 }

@@ -1,15 +1,19 @@
 package com.project.bookstore.controller;
 
 import com.project.bookstore.dto.UserDto;
+import com.project.bookstore.entity.Library;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.EntityValidationException;
 import com.project.bookstore.exceptions.RequestBodyMapKeyNotFoundException;
+import com.project.bookstore.mapper.LibraryMapper;
 import com.project.bookstore.validator.UserValidator;
 import com.project.bookstore.mapper.UserMapper;
 import com.project.bookstore.service.EmailService;
 import com.project.bookstore.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 
 @RestController
 @RequestMapping("/users")
@@ -31,6 +36,8 @@ public class UserController {
     private UserValidator userValidator;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private LibraryMapper libraryMapper;
 
     @InitBinder("userDto")
     protected void initBinder(WebDataBinder webDataBinder) {
@@ -61,6 +68,19 @@ public class UserController {
     public ResponseEntity<?> findUserById(@PathVariable(name = "userId") Long userId) {
         User foundUser = userService.findById(userId);
         return ResponseEntity.ok(userMapper.mapUserDtoFromUser(foundUser));
+    }
+
+    @GetMapping("/{userId}/favourites")
+    public ResponseEntity<?> findFavouriteLibraries(@PathVariable(name = "userId") Long userId,
+                                                    @RequestParam(name = "pageSize", required = false) Integer pageSize,
+                                                    @RequestParam(name = "pageNumber", required = false) Integer pageNumber
+    ) {
+        if (pageSize != null && pageNumber != null) {
+            Page<Library> favouriteLibaries = userService.findFavouriteLibraries(PageRequest.of(pageNumber, pageSize), userId);
+            return ResponseEntity.ok(favouriteLibaries.map(library -> libraryMapper.mapLibraryDtoFromLibrary(library)));
+        }
+        List<Library> favouriteLibrary = userService.findFavouriteLibraries(userId);
+        return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(favouriteLibrary));
     }
 
     @PutMapping("/{userId}")

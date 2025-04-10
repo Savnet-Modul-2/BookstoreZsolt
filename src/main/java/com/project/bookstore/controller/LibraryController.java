@@ -64,6 +64,7 @@ public class LibraryController {
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoListFromLibraryList(libraryService.findAll()));
     }
 
+
     @PutMapping("/{libraryId}")
     public ResponseEntity<?> updateLibraryById(@PathVariable(name = "libraryId") Long libraryId,
                                                @Valid @RequestBody LibraryDto libraryDto, BindingResult bindingResult) {
@@ -83,5 +84,12 @@ public class LibraryController {
                                                       @PathVariable(name = "bookId") Long bookId) {
         Library library = libraryService.addExistingBookToLibrary(libraryId, bookId);
         return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(library));
+    }
+
+    @PutMapping("/addFavourite/{libraryId}/{userId}")
+    public ResponseEntity<?> addLibraryToFavourite(@PathVariable(name = "libraryId") Long libraryId,
+                                                   @PathVariable(name = "userId") Long userId) {
+        Library foundLibrary = libraryService.addLibraryToFavourite(userId, libraryId);
+        return ResponseEntity.ok(libraryMapper.mapLibraryDtoFromLibrary(foundLibrary));
     }
 }

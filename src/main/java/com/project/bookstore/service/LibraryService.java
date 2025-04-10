@@ -2,9 +2,11 @@ package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Book;
 import com.project.bookstore.entity.Library;
+import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.EntityNotVerifiedException;
 import com.project.bookstore.repository.BookRepository;
 import com.project.bookstore.repository.LibraryRepository;
+import com.project.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ public class LibraryService {
     private LibraryRepository libraryRepository;
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public Library addBookToLibrary(Long id, Book book) {
         Library library = libraryRepository.findById(id)
@@ -55,6 +59,19 @@ public class LibraryService {
         foundLibrary.setCity(library.getCity());
         foundLibrary.setName(library.getName());
         foundLibrary.setPhoneNumber(library.getPhoneNumber());
+        return libraryRepository.save(foundLibrary);
+    }
+
+    public Library addLibraryToFavourite(Long userId, Long libraryId) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
+        Library foundLibrary = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with id  %s not found".formatted(libraryId)));
+        if (!foundUser.getFavouriteLibraries().contains(foundLibrary)) {
+            foundLibrary.addUserToFavourites(foundUser);
+        } else {
+            foundLibrary.removeUserFromFavourites(foundUser);
+        }
         return libraryRepository.save(foundLibrary);
     }
 }

@@ -31,6 +31,7 @@ public class BookMapper {
         bookDto.setNrOfPages(book.getNrOfPages());
         bookDto.setGenre(book.getGenre());
         bookDto.setBookLanguage(book.getBookLanguage());
+        bookDto.setReviewAverage(book.getReviewAverage());
         return bookDto;
     }
 
