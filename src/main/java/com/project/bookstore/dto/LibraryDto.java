@@ -1,6 +1,10 @@
 package com.project.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.ArrayList;
+import java.util.List;
+
 //TODO: resolve LibraryDto to show parent(LibrarianDto)
 public class LibraryDto {
     private Long id;
@@ -9,6 +13,16 @@ public class LibraryDto {
     private String phoneNumber;
     @JsonIgnore
     private LibrarianDto librarian;
+    //Am pus variabila asta in DTO, respectiv si in Mapper doar ca sa verific ca s-a salvat In DB
+    private List<String> userNames = new ArrayList<>();
+
+    public List<String> getUserNames() {
+        return userNames;
+    }
+
+    public void setUserNames(List<String> userNames) {
+        this.userNames = userNames;
+    }
 
     public Long getId() {
         return id;
@@ -49,4 +63,6 @@ public class LibraryDto {
     public void setLibrarian(LibrarianDto librarian) {
         this.librarian = librarian;
     }
+
+
 }

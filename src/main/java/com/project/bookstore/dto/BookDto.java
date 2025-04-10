@@ -16,6 +16,16 @@ public class BookDto {
     private Genre genre;
     private BookLanguage bookLanguage;
 
+    public double getReviewAverage() {
+        return reviewAverage;
+    }
+
+    public void setReviewAverage(double reviewAverage) {
+        this.reviewAverage = reviewAverage;
+    }
+
+    private double reviewAverage;
+
     public Long getId() {
         return id;
     }

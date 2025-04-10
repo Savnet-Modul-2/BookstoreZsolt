@@ -29,6 +29,9 @@ public class Library {
             mappedBy = "library")
     private List<Book> books = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "favouriteLibraries", fetch = FetchType.EAGER)
+    private List<User> favouriteUsers = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -80,5 +83,23 @@ public class Library {
     public void addBook(Book book) {
         this.books.add(book);
         book.setLibrary(this);
+    }
+
+    public List<User> getFavouriteUsers() {
+        return favouriteUsers;
+    }
+
+    public void setFavouriteUsers(List<User> favouriteUsers) {
+        this.favouriteUsers = favouriteUsers;
+    }
+
+    public void addUserToFavourites(User user) {
+        this.favouriteUsers.add(user);
+        user.addLibraryToFavourites(this);
+    }
+
+    public void removeUserFromFavourites(User user) {
+        this.favouriteUsers.remove(user);
+        user.removeLibraryFromFavourites(this);
     }
 }

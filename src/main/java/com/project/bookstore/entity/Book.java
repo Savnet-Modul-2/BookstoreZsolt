@@ -39,6 +39,14 @@ public class Book {
             mappedBy = "book")
     private List<BookExemplar> bookExemplars = new ArrayList<>();
 
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            mappedBy = "reviewedBook")
+    private List<Reviews> reviews = new ArrayList<>();
+
+    @Column(name = "reviewAverage")
+    private Double reviewAverage = 0.;
+
     public Long getId() {
         return id;
     }
@@ -118,5 +126,34 @@ public class Book {
     public void setBookExemplars(List<BookExemplar> bookExemplars) {
         this.bookExemplars = bookExemplars;
         bookExemplars.forEach(bookExemplar -> bookExemplar.setBook(this));
+    }
+
+    public List<Reviews> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Reviews> reviews) {
+        this.reviews = reviews;
+    }
+
+    public Double getReviewAverage() {
+        return reviewAverage;
+    }
+
+    public void setReviewAverage(Double reviewAverage) {
+        this.reviewAverage = reviewAverage;
+    }
+
+    public void addReview(Reviews reviews) {
+        this.reviews.add(reviews);
+        reviews.setReviewedBook(this);
+    }
+
+    public void calculateAverage() {
+        double sum = 0;
+        for (Reviews r : reviews) {
+            sum += r.getReviewNote().getNote();
+        }
+        this.reviewAverage = sum / reviews.size();
     }
 }

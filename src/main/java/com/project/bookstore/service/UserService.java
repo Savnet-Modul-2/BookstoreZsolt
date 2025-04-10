@@ -1,6 +1,7 @@
 package com.project.bookstore.service;
 
 import com.project.bookstore.entity.Librarian;
+import com.project.bookstore.entity.Library;
 import com.project.bookstore.entity.Reservation;
 import com.project.bookstore.entity.User;
 import com.project.bookstore.exceptions.CodeExpirationTimeException;
@@ -13,6 +14,9 @@ import com.project.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -100,5 +104,17 @@ public class UserService {
         }
         emailService.sendEmail(new EmailDetails(foundUser.getEmail(), EmailDetails.CODE_EMAIL_SUBJECT, EmailDetails.CODE_EMAIL_BODY.formatted(foundUser.getVerificationCode())));
         return EmailDetails.EMAIL_SENT_SUCCESSFULLY;
+    }
+
+    public Page<Library> findFavouriteLibraries(Pageable pageable, Long userId) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
+        return new PageImpl<>(foundUser.getFavouriteLibraries(), pageable, foundUser.getFavouriteLibraries().size());
+    }
+
+    public List<Library> findFavouriteLibraries(Long userId) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
+        return foundUser.getFavouriteLibraries();
     }
 }

@@ -2,6 +2,7 @@ package com.project.bookstore.mapper;
 
 import com.project.bookstore.dto.LibraryDto;
 import com.project.bookstore.entity.Library;
+import com.project.bookstore.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ public class LibraryMapper {
         libraryDto.setName(library.getName());
         libraryDto.setCity(library.getCity());
         libraryDto.setPhoneNumber(library.getPhoneNumber());
+        libraryDto.setUserNames(library.getFavouriteUsers().stream().map(User::getFirstName).toList());
         return libraryDto;
     }
 
